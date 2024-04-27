@@ -1,0 +1,15 @@
+[package]
+name = "silviculture"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+axum = "0.7.5"
+serde = { features = ["derive"], version = "1.0" }
+serde_json = "1.0.116"
+tokio = { features = ["full"], version = "1.37.0" }
+tower-http = "0.5.2"
+git2 = "0.18.3"
+ts-rs = "8.1.0"
