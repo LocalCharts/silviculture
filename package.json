@@ -1,5 +1,5 @@
 {
-  "name": "client",
+  "name": "silviculture",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,10 +9,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "ky": "^1.2.4",
+    "@hocuspocus/extension-sqlite": "^2.12.2",
+    "@hocuspocus/provider": "^2.12.2",
+    "@hocuspocus/server": "^2.12.2",
     "solid-js": "^1.8.15"
   },
   "devDependencies": {
+    "@types/node": "^20.12.7",
+    "tsx": "^4.7.3",
     "typescript": "^5.2.2",
     "vite": "^5.2.0",
     "vite-plugin-solid": "^2.10.2"
