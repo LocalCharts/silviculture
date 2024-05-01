@@ -9,15 +9,22 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fastify/websocket": "^10.0.1",
     "@hocuspocus/extension-sqlite": "^2.12.2",
     "@hocuspocus/provider": "^2.12.2",
     "@hocuspocus/server": "^2.12.2",
+    "@unocss/reset": "^0.59.4",
+    "fastify": "^4.26.2",
     "solid-js": "^1.8.15"
   },
   "devDependencies": {
+    "@iconify-json/tabler": "^1.1.110",
     "@types/node": "^20.12.7",
+    "@unocss/preset-icons": "^0.59.4",
+    "@unocss/preset-wind": "^0.59.4",
     "tsx": "^4.7.3",
     "typescript": "^5.2.2",
+    "unocss": "^0.59.4",
     "vite": "^5.2.0",
     "vite-plugin-solid": "^2.10.2"
   }
