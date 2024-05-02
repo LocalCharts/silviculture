@@ -1,43 +1,12 @@
 import { HocuspocusProvider } from "@hocuspocus/provider"
-import { For, JSX, splitProps } from "solid-js"
-import { yArraySignal } from "./YSignal"
 import * as Y from "yjs"
 import * as random from "lib0/random"
-
+import ky from 'ky'
 import { yCollab } from 'y-codemirror.next'
 import { EditorView, basicSetup } from "codemirror"
 import { EditorState } from "@codemirror/state"
-
-type Task = Y.Map<any> & {
-  get(_: "description"): string
-  get(_: "id"): number
-  set(_: "description", val: string): void
-}
-
-function newTask() {
-  const t = new Y.Map()
-  t.set("description", "")
-  t.set("id", 0)
-  return (t as Task)
-}
-
-
-type TodoListProps = {
-  ytasks: Y.Array<Task>
-}
-
-function TodoList(props: TodoListProps) {
-  const tasks = yArraySignal(props.ytasks)
-
-  return (
-    <ul class="list-disc list-inside my-2">
-      <For each={tasks()}>
-        {(task,i) =>
-        <li> {task.get("id") + task.get("description")} <Trash onClick={_ => props.ytasks.delete(i())}/> </li>}
-      </For>
-    </ul>
-  )
-}
+import { JSX, splitProps } from "solid-js"
+import autoRenderMath from 'katex/contrib/auto-render'
 
 type ButtonProps = {
   children: string
@@ -54,11 +23,30 @@ function Button(props: ButtonProps) {
   )
 }
 
-function Trash(props: JSX.HTMLAttributes<HTMLButtonElement>) {
+async function loadBuild(into: Element) {
+  const parser = new DOMParser()
+  const xml = parser.parseFromString(await (await ky.get("/built/ocl-0001.xml")).text(), 'application/xml')
+  const xsl = parser.parseFromString(await (await ky.get("/built/forest.xsl")).text(), 'application/xml')
+  const processor = new XSLTProcessor();
+  processor.importStylesheet(xsl);
+  const result = processor.transformToDocument(xml);
+  const body = result.body
+  autoRenderMath(body)
+  while (into.firstChild) {
+    into.removeChild(into.firstChild);
+  }
+  into.appendChild(body)
+}
+
+function Preview() {
+  let ref: Element
   return (
-    <button class="relative align-baseline top-[1.5px]" {...props}>
-      <div class="i-tabler-trash" />
-    </button>
+    <div>
+      <Button onClick={_ => loadBuild(ref)}>Refresh</Button>
+      <div ref={elt => {ref = elt; loadBuild(elt)}}>
+      </div>
+    </div>
+
   )
 }
 
@@ -76,18 +64,17 @@ export const usercolors = [
 // select a random color for this user
 export const userColor = usercolors[random.uint32() % usercolors.length]
 
+
 function App() {
   // Connect it to the backend
   const provider = new HocuspocusProvider({
-    url: "ws://127.0.0.1:1234/collaboration",
-    name: "example-document",
+    url: "/collaboration",
+    name: "ocl-0001.tree",
   });
 
   // Define `tasks` as an Array
 
-  const ytasks: Y.Array<Task> = provider.document.getArray("tasks");
-
-  const ytext = provider.document.getText('codemirror')
+  const ytext = provider.document.getText('content')
 
   const undoManager = new Y.UndoManager(ytext)
 
@@ -101,6 +88,7 @@ function App() {
     doc: ytext.toString(),
     extensions: [
       basicSetup,
+      EditorView.lineWrapping,
       yCollab(ytext, provider.awareness, { undoManager })
     ]
   })
@@ -113,11 +101,14 @@ function App() {
   }
 
   return (
-    <div class="font-sans container mx-auto">
-      <h1 class="text-xl font-bold">Todo</h1>
-      <TodoList ytasks={ytasks} />
-      <Button onClick={_ => ytasks.push([newTask()])}>Add Todo</Button>
-      <div ref={onload}></div>
+    <div class="font-sans container mx-auto flex flex-row">
+      <div class="flex-1 p-4">
+        <Button onClick={_ => ky.post("/api/build")}>Build</Button>
+        <div ref={onload}></div>
+      </div>
+      <div class="flex-1 p-4">
+        <Preview />
+      </div>
     </div>
   )
 }

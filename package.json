@@ -9,12 +9,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fastify/static": "^7.0.3",
     "@fastify/websocket": "^10.0.1",
     "@hocuspocus/extension-sqlite": "^2.12.2",
     "@hocuspocus/provider": "^2.12.2",
     "@hocuspocus/server": "^2.12.2",
     "@unocss/reset": "^0.59.4",
     "fastify": "^4.26.2",
+    "katex": "^0.16.10",
+    "ky": "^1.2.4",
     "solid-js": "^1.8.15"
   },
   "devDependencies": {

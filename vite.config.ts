@@ -15,11 +15,18 @@ export default defineConfig({
   ],
   server: {
     proxy: {
+      '/collaboration': {
+        target: 'ws://localhost:1234',
+        ws: true,
+      },
       '/api': {
         target: 'http://localhost:1234',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
-      }
+      },
+      '/built': {
+        target: 'http://localhost:1234',
+        changeOrigin: true,
+      },
     }
   }
 })
