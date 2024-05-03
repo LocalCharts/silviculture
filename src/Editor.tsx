@@ -6,6 +6,7 @@ import { yCollab } from 'y-codemirror.next'
 import { EditorView, basicSetup } from "codemirror"
 import { EditorState } from "@codemirror/state"
 import { HocuspocusProvider } from "@hocuspocus/provider"
+import { vim } from '@replit/codemirror-vim'
 
 export const usercolors = [
   { color: '#30bced', light: '#30bced33' },
@@ -47,6 +48,7 @@ export function Editor(props: EditorProps) {
     const state = EditorState.create({
       doc: ytext.toString(),
       extensions: [
+        vim(),
         basicSetup,
         EditorView.lineWrapping,
         yCollab(ytext, provider.awareness, { undoManager })

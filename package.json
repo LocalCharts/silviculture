@@ -17,6 +17,7 @@
     "@hocuspocus/extension-sqlite": "^2.12.2",
     "@hocuspocus/provider": "^2.12.2",
     "@hocuspocus/server": "^2.12.2",
+    "@replit/codemirror-vim": "^6.2.1",
     "@unocss/reset": "^0.59.4",
     "codemirror": "^6.0.1",
     "fastify": "^4.26.2",
