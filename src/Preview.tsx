@@ -9,7 +9,7 @@ async function loadBuild(into: Element) {
   const processor = new XSLTProcessor();
   processor.importStylesheet(xsl);
   const result = processor.transformToDocument(xml);
-  const body = result.body
+  const body = result.getElementsByClassName('tree-content')[0]
   autoRenderMath(body)
   while (into.firstChild) {
     into.removeChild(into.firstChild);
