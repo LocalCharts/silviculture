@@ -1,5 +1,5 @@
 import { Server, onLoadDocumentPayload, onStoreDocumentPayload } from '@hocuspocus/server'
-import { readFile, writeFile } from 'fs/promises'
+import { readFile, readdir, writeFile } from 'fs/promises'
 import * as fastifyStatic from '@fastify/static'
 import { spawn } from 'child_process'
 import * as Y from 'yjs'
@@ -18,6 +18,13 @@ await app.register(websocket)
 
 const root = '/tmp/forest/trees'
 
+export const schema = `CREATE TABLE IF NOT EXISTS "documents" (
+  "name" varchar(255) NOT NULL,
+  "path" varchar(255) NOT NULL,
+  "data" blob NOT NULL,
+  UNIQUE(name)
+)`
+
 const hocuspocus = Server.configure({
   async onConnect() {
     console.log('🔮')
@@ -25,7 +32,7 @@ const hocuspocus = Server.configure({
 
   async onLoadDocument(data: onLoadDocumentPayload) {
     const name = data.documentName
-    const contents = await readFile(root + "/" + name, { encoding: 'utf8' })
+    const contents = await readFile(path.join(root, name), { encoding: 'utf8' })
     const doc = new Y.Doc()
     const ycontents = doc.getText('content')
     ycontents.insert(0, contents)
@@ -50,5 +57,8 @@ app.post('/api/build', (_req) => {
   builder.on('close', _ => console.log('build finished'))
 })
 
+app.get('/api/trees', async (_req) => {
+  return (await readdir(root))
+})
 
 app.listen({ port: 1234 })
