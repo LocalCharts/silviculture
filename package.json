@@ -9,31 +9,32 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@codemirror/commands": "^6.5.0",
+    "@codemirror/state": "^6.4.1",
+    "@codemirror/view": "^6.26.3",
     "@fastify/static": "^7.0.3",
     "@fastify/websocket": "^10.0.1",
     "@hocuspocus/extension-sqlite": "^2.12.2",
     "@hocuspocus/provider": "^2.12.2",
     "@hocuspocus/server": "^2.12.2",
     "@unocss/reset": "^0.59.4",
+    "codemirror": "^6.0.1",
     "fastify": "^4.26.2",
     "katex": "^0.16.10",
     "ky": "^1.2.4",
-    "solid-js": "^1.8.15"
+    "solid-js": "^1.8.15",
+    "y-codemirror.next": "^0.3.3",
+    "yjs": "^13.6.15"
   },
   "devDependencies": {
-    "@codemirror/commands": "^6.5.0",
-    "@codemirror/state": "^6.4.1",
-    "@codemirror/view": "^6.26.3",
     "@iconify-json/tabler": "^1.1.110",
     "@types/node": "^20.12.7",
     "@unocss/preset-icons": "^0.59.4",
     "@unocss/preset-wind": "^0.59.4",
-    "codemirror": "^6.0.1",
     "tsx": "^4.7.3",
     "typescript": "^5.2.2",
     "unocss": "^0.59.4",
     "vite": "^5.2.0",
-    "vite-plugin-solid": "^2.10.2",
-    "y-codemirror.next": "^0.3.3"
+    "vite-plugin-solid": "^2.10.2"
   }
 }
