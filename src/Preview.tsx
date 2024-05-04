@@ -1,12 +1,12 @@
 import autoRenderMath from 'katex/contrib/auto-render'
-import { createMemo } from 'solid-js'
+import { JSXElement, createMemo } from 'solid-js'
 
 export interface PreviewProps {
   content: string
   xsl: string
 }
 
-export function Preview (props: PreviewProps) {
+export function Preview (props: PreviewProps): JSXElement {
   const parser = new DOMParser()
 
   const processor = createMemo(() => {

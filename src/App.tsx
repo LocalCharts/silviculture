@@ -1,7 +1,7 @@
 import { HocuspocusProvider } from '@hocuspocus/provider'
 import { Editor } from './Editor'
 import { Preview, PreviewProps } from './Preview'
-import { createResource, createSignal, JSX, Show, splitProps } from 'solid-js'
+import { createResource, createSignal, JSX, JSXElement, Show, splitProps } from 'solid-js'
 import ky from 'ky'
 
 enum PaneState {
@@ -10,19 +10,19 @@ enum PaneState {
   PREVIEW_ONLY
 }
 
-function hasEditor (s: PaneState) {
-  return (s == PaneState.EDITOR_ONLY || s == PaneState.EDITOR_AND_PREVIEW)
+function hasEditor (s: PaneState): boolean {
+  return (s === PaneState.EDITOR_ONLY || s === PaneState.EDITOR_AND_PREVIEW)
 }
 
-function hasPreview (s: PaneState) {
-  return (s == PaneState.PREVIEW_ONLY || s == PaneState.EDITOR_AND_PREVIEW)
+function hasPreview (s: PaneState): boolean {
+  return (s === PaneState.PREVIEW_ONLY || s === PaneState.EDITOR_AND_PREVIEW)
 }
 
 type TopBarChoiceProps = {
   enabled: boolean
 } & JSX.HTMLAttributes<HTMLButtonElement>
 
-function TopBarChoice (props: TopBarChoiceProps) {
+function TopBarChoice (props: TopBarChoiceProps): JSXElement {
   const [, rest] = splitProps(props, ['enabled'])
   return (
     <button
@@ -44,24 +44,24 @@ interface TopBarProps {
   setState: (s: PaneState) => void
 }
 
-function TopBar (props: TopBarProps) {
+function TopBar (props: TopBarProps): JSXElement {
   return (
     <div class='flex flex-row'>
       <TopBarChoice
-        enabled={props.state == PaneState.EDITOR_ONLY}
+        enabled={props.state === PaneState.EDITOR_ONLY}
         onClick={_ => props.setState(PaneState.EDITOR_ONLY)}
       >
         <div class='i-tabler-ballpen-filled' />
       </TopBarChoice>
       <TopBarChoice
-        enabled={props.state == PaneState.EDITOR_AND_PREVIEW}
+        enabled={props.state === PaneState.EDITOR_AND_PREVIEW}
         onClick={_ => props.setState(PaneState.EDITOR_AND_PREVIEW)}
       >
         <div class='i-tabler-ballpen-filled' />
         <div class='i-tabler-eye' />
       </TopBarChoice>
       <TopBarChoice
-        enabled={props.state == PaneState.PREVIEW_ONLY}
+        enabled={props.state === PaneState.PREVIEW_ONLY}
         onClick={_ => props.setState(PaneState.PREVIEW_ONLY)}
       >
         <div class='i-tabler-eye' />
@@ -77,7 +77,7 @@ async function loadPreview (): Promise<PreviewProps> {
   return { content, xsl }
 }
 
-function App () {
+function App (): JSXElement {
   // Connect it to the backend
   const provider = new HocuspocusProvider({
     url: '/collaboration',

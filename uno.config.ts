@@ -29,10 +29,10 @@ export default defineConfig({
       fonts: {
         sans: 'Inria Sans'
       }
-    }),
+    })
   ],
   transformers: [
     transformerDirectives(),
-    transformerVariantGroup(),
-  ],
+    transformerVariantGroup()
+  ]
 })

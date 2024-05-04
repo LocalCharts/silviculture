@@ -7,6 +7,7 @@ import { EditorView, basicSetup } from 'codemirror'
 import { EditorState } from '@codemirror/state'
 import { HocuspocusProvider } from '@hocuspocus/provider'
 import { vim, Vim } from '@replit/codemirror-vim'
+import { JSXElement } from 'solid-js'
 
 export const usercolors = [
   { color: '#30bced', light: '#30bced33' },
@@ -32,23 +33,23 @@ interface BuildResult {
   content: string
 }
 
-export function Editor (props: EditorProps) {
+export function Editor (props: EditorProps): JSXElement {
   let ref: Element
 
   props.provider.awareness?.setLocalStateField('user', {
-    name: 'Anonymous ' + Math.floor(Math.random() * 100),
+    name: 'Anonymous ' + Math.floor(Math.random() * 100).toString(),
     color: userColor.color,
     colorLight: userColor.light
   })
 
-  async function build () {
+  async function build (): Promise<void> {
     const result = await ky
       .post('/api/build', { json: { tree: 'ocl-0001' }, timeout: false })
-      .json()
+      .json() as BuildResult
     props.setContent(result.content)
   }
 
-  function onload (elt: Element) {
+  function onload (elt: Element): void {
     ref = elt
 
     const ytext = props.ytext

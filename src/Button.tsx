@@ -1,10 +1,10 @@
-import { JSX, splitProps } from 'solid-js'
+import { JSX, JSXElement, splitProps } from 'solid-js'
 
 type ButtonProps = {
   children: string
 } & JSX.HTMLAttributes<HTMLButtonElement>
 
-export function Button (props: ButtonProps) {
+export function Button (props: ButtonProps): JSXElement {
   const [, rest] = splitProps(props, ['children'])
   return (
     <button

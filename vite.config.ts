@@ -17,15 +17,15 @@ export default defineConfig({
     proxy: {
       '/collaboration': {
         target: 'ws://localhost:1234',
-        ws: true,
+        ws: true
       },
       '/api': {
         target: 'http://localhost:1234',
-        changeOrigin: true,
+        changeOrigin: true
       },
       '/built': {
         target: 'http://localhost:1234',
-        changeOrigin: true,
+        changeOrigin: true
       },
       '/resources': {
         target: 'http://localhost:1234',
