@@ -43,7 +43,7 @@ export function Editor(props: EditorProps) {
 
   async function build() {
     const result = await ky
-      .post("/api/build", { timeout: false })
+      .post("/api/build", { json: { tree: 'ocl-0001' }, timeout: false })
       .json() as BuildResult
     props.setContent(result.content)
   }

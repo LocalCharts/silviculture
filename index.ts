@@ -53,10 +53,11 @@ app.get('/collaboration', { websocket: true }, (socket, req) => {
   hocuspocus.handleConnection(socket, req as any, {});
 })
 
-app.post('/api/build', async (_req) => {
+app.post('/api/build', async (req) => {
+  const tree = (req.body as any).tree
   console.log("building...")
-  const treeContent = hocuspocus.documents.get('ocl-0001.tree')?.getText('content').toString() as string
-  await writeFile(path.join(contentRoot, 'ocl-0001.tree'), treeContent)
+  const treeContent = hocuspocus.documents.get(tree + ".tree")?.getText('content').toString() as string
+  await writeFile(path.join(contentRoot, tree + ".tree"), treeContent)
   const builder = spawn('build', { cwd: '/tmp/forest', stdio: 'inherit' })
   const finishedPromise = new Promise((resolve, _reject) => {
     builder.on('close', _ => {
@@ -65,7 +66,7 @@ app.post('/api/build', async (_req) => {
     })
   })
   await finishedPromise
-  const content = await readFile(path.join(builtRoot, 'ocl-0001.xml'), {encoding: 'utf8'})
+  const content = await readFile(path.join(builtRoot, tree + ".xml"), {encoding: 'utf8'})
   return { content }
 })
 
