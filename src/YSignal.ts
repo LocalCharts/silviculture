@@ -1,5 +1,5 @@
-import * as Y from "yjs"
-import { createSignal } from "solid-js"
+import * as Y from 'yjs'
+import { createSignal } from 'solid-js'
 
 /**
  * Produces a solidjs signal from a Y.Array that tracks updates.
@@ -8,8 +8,8 @@ import { createSignal } from "solid-js"
  * this is on purpose; the only way to update the signal should be
  * through modifying the original Y.Array.
  */
-export function yArraySignal<T>(yArray: Y.Array<T>): (() => Array<T>) {
-  const [array, setArray] = createSignal<Array<T>>(yArray.toArray())
+export function yArraySignal<T> (yArray: Y.Array<T>): (() => T[]) {
+  const [array, setArray] = createSignal<T[]>(yArray.toArray())
   yArray.observe((_evt, _txn) => {
     setArray(yArray.toArray())
   })
