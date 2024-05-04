@@ -1,7 +1,7 @@
 import * as random from "lib0/random"
 import * as Y from "yjs"
 import ky from 'ky'
-import { Button } from "./Button"
+// @ts-ignore
 import { yCollab } from 'y-codemirror.next'
 import { EditorView, basicSetup } from "codemirror"
 import { EditorState } from "@codemirror/state"

@@ -20,7 +20,7 @@ export function Preview(props: PreviewProps) {
     console.log(props.content)
     const transformed = parser.parseFromString(props.content, 'application/xml')
     const doc = processor().transformToDocument(transformed)
-    const content = doc.getElementsByClassName('tree-content')[0]
+    const content = doc.getElementsByClassName('tree-content')[0] as HTMLElement
     autoRenderMath(content)
     return content
   })

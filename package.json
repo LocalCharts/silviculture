@@ -29,6 +29,7 @@
   },
   "devDependencies": {
     "@iconify-json/tabler": "^1.1.110",
+    "@types/katex": "^0.16.7",
     "@types/node": "^20.12.7",
     "@unocss/preset-icons": "^0.59.4",
     "@unocss/preset-wind": "^0.59.4",
