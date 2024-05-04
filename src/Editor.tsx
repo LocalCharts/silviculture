@@ -6,7 +6,7 @@ import { yCollab } from 'y-codemirror.next'
 import { EditorView, basicSetup } from "codemirror"
 import { EditorState } from "@codemirror/state"
 import { HocuspocusProvider } from "@hocuspocus/provider"
-import { vim } from '@replit/codemirror-vim'
+import { vim, Vim } from '@replit/codemirror-vim'
 
 export const usercolors = [
   { color: '#30bced', light: '#30bced33' },
@@ -24,18 +24,29 @@ export const userColor = usercolors[random.uint32() % usercolors.length]
 
 type EditorProps = {
   ytext: Y.Text,
-  provider: HocuspocusProvider
+  provider: HocuspocusProvider,
+  setContent: (content: string) => void
+}
+
+type BuildResult = {
+  content: string
 }
 
 export function Editor(props: EditorProps) {
   var ref: Element
-  var view: EditorView
 
   props.provider.awareness?.setLocalStateField('user', {
     name: 'Anonymous ' + Math.floor(Math.random() * 100),
     color: userColor.color,
     colorLight: userColor.light
   })
+
+  async function build() {
+    const result = await ky
+      .post("/api/build", { timeout: false })
+      .json() as BuildResult
+    props.setContent(result.content)
+  }
 
   function onload(elt: Element) {
     ref = elt
@@ -44,6 +55,8 @@ export function Editor(props: EditorProps) {
     const provider = props.provider
 
     const undoManager = new Y.UndoManager(ytext)
+
+    Vim.defineEx('write', 'w', build)
 
     const state = EditorState.create({
       doc: ytext.toString(),
@@ -55,7 +68,7 @@ export function Editor(props: EditorProps) {
       ]
     })
 
-    view = new EditorView({
+    new EditorView({
       state,
       parent: ref
     })
@@ -63,7 +76,6 @@ export function Editor(props: EditorProps) {
 
   return (
     <div>
-      <Button onClick={_ => ky.post("/api/build")}>Build</Button>
       <div ref={onload}></div>
     </div>
   )

@@ -1,7 +1,8 @@
 import { HocuspocusProvider } from "@hocuspocus/provider"
 import { Editor } from "./Editor"
-import { Preview } from "./Preview"
-import { createSignal, JSX, Show, splitProps } from "solid-js";
+import { Preview, PreviewProps } from "./Preview"
+import { createResource, createSignal, JSX, Show, splitProps } from "solid-js";
+import ky from 'ky'
 
 enum PaneState {
   EDITOR_AND_PREVIEW,
@@ -65,6 +66,13 @@ function TopBar(props: TopBarProps) {
   )
 }
 
+async function loadPreview(): Promise<PreviewProps> {
+  const content = await (await ky.get('/built/ocl-0001.xml')).text()
+  const xsl = await (await ky.get('/built/forest.xsl')).text()
+  console.log("got new content")
+  return { content, xsl }
+}
+
 function App() {
   // Connect it to the backend
   const provider = new HocuspocusProvider({
@@ -78,18 +86,27 @@ function App() {
 
   const [paneState, setPaneState] = createSignal(PaneState.EDITOR_AND_PREVIEW)
 
+  const [preview, { mutate }] = createResource(loadPreview)
+
   return (
     <div class="container font-sans mx-auto">
       <TopBar state={paneState()} setState={setPaneState} />
       <div class="flex flex-row">
         <Show when={hasEditor(paneState())}>
           <div class="flex-1 p-4">
-            <Editor ytext={ytext} provider={provider}/>
+            <Editor
+              ytext={ytext}
+              provider={provider}
+              setContent={(content: string) =>
+                mutate(p => { return {xsl: p?.xsl as string, content} })
+              }/>
           </div>
         </Show>
         <Show when={hasPreview(paneState())}>
           <div class="flex-1 p-4">
-            <Preview />
+            <Show when={preview()}>
+              {props => <Preview {...props()}/>}
+            </Show>
           </div>
         </Show>
       </div>

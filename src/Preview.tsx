@@ -1,28 +1,34 @@
-import { Button } from "./Button"
 import autoRenderMath from 'katex/contrib/auto-render'
-import ky from 'ky'
+import { createMemo } from "solid-js"
 
-async function loadBuild(into: Element) {
-  const parser = new DOMParser()
-  const xml = parser.parseFromString(await (await ky.get("/built/ocl-0001.xml")).text(), 'application/xml')
-  const xsl = parser.parseFromString(await (await ky.get("/built/forest.xsl")).text(), 'application/xml')
-  const processor = new XSLTProcessor();
-  processor.importStylesheet(xsl);
-  const result = processor.transformToDocument(xml);
-  const body = result.getElementsByClassName('tree-content')[0]
-  autoRenderMath(body)
-  while (into.firstChild) {
-    into.removeChild(into.firstChild);
-  }
-  into.appendChild(body)
+export type PreviewProps = {
+  content: string,
+  xsl: string
 }
 
-export function Preview() {
-  let ref: Element
+export function Preview(props: PreviewProps) {
+  const parser = new DOMParser()
+
+  const processor = createMemo(() => {
+    const xsl = parser.parseFromString(props.xsl, 'application/xml')
+    const processor = new XSLTProcessor()
+    processor.importStylesheet(xsl)
+    return processor
+  })
+
+  const content = createMemo(() => {
+    console.log(props.content)
+    const transformed = parser.parseFromString(props.content, 'application/xml')
+    const doc = processor().transformToDocument(transformed)
+    const content = doc.getElementsByClassName('tree-content')[0]
+    autoRenderMath(content)
+    return content
+  })
+
   return (
     <div>
-      <Button onClick={_ => loadBuild(ref)}>Refresh</Button>
-      <div ref={elt => {ref = elt; loadBuild(elt)}}>
+      <div>
+        {content()}
       </div>
     </div>
   )
