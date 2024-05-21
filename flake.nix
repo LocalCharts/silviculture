@@ -14,7 +14,7 @@
       let
         offlineCache = pkgs.fetchYarnDeps {
           yarnLock = ./yarn.lock;
-          hash = "sha256-yk6e18ePw+nplAd7b5jLgUQLWUuwstVXxiXfls21Mac=";
+          hash = "sha256-pmJvkceaHyoW91Ebn15aZBTqDglVjmuw4TtbMUndsZ8=";
         };
         headers = pkgs.fetchurl {
           url = "https://nodejs.org/download/release/v20.11.1/node-v20.11.1-headers.tar.gz";
