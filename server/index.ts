@@ -12,8 +12,9 @@ import { SQLiteWithFS } from './persistence.js'
 
 const app = Fastify({ logger: true })
 
-const builtRoot = '/tmp/forest/output'
-const contentRoot = '/tmp/forest/trees'
+const forestDir = process.env.FOREST_DIR || '/tmp/forest'
+const builtRoot = path.join(forestDir, 'output')
+const contentRoot = path.join(forestDir, 'trees')
 const dbPath = 'state.db'
 
 app.register(fastifyStatic, {

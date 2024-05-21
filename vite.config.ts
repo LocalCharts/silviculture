@@ -27,11 +27,6 @@ export default defineConfig({
         target: 'http://localhost:1234',
         changeOrigin: true
       },
-      '/resources': {
-        target: 'http://localhost:1234',
-        changeOrigin: true,
-        rewrite: (path) => '/built' + path
-      }
     }
   }
 })
