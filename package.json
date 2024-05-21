@@ -5,8 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "preview": "vite preview"
+  },
+  "bin": {
+    "silviculture": "server/index.js"
   },
   "dependencies": {
     "@codemirror/commands": "^6.5.0",

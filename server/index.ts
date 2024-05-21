@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { Server, onLoadDocumentPayload, onStoreDocumentPayload } from '@hocuspocus/server'
 import { readFile, readdir, writeFile } from 'fs/promises'
 import * as fastifyStatic from '@fastify/static'
@@ -6,7 +8,7 @@ import * as Y from 'yjs'
 import Fastify from 'fastify'
 import websocket from '@fastify/websocket'
 import * as path from 'path'
-import { SQLiteWithFS } from './persistence'
+import { SQLiteWithFS } from './persistence.js'
 
 const app = Fastify({ logger: true })
 
