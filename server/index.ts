@@ -43,7 +43,7 @@ app.post('/api/build', async (req) => {
   console.log("building...")
   const treeContent = hocuspocus.documents.get(tree + ".tree")?.getText('content').toString() as string
   await writeFile(path.join(contentRoot, tree + ".tree"), treeContent)
-  const builder = spawn('forester', ['build', '--dev', '--root', 'lc-0001', 'trees/'], { cwd: '/tmp/forest' }) //shouldn't just inherit to stdio, need to pipe to client
+  const builder = spawn('forester', ['build', '--dev', '--root', 'lc-0001', 'trees/'], { cwd: forestDir }) //shouldn't just inherit to stdio, need to pipe to client
   const output: string[] = []
   builder.stdout.on('data', data => {
     output.push(data)
