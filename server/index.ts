@@ -6,11 +6,13 @@ import * as Y from 'yjs'
 import Fastify from 'fastify'
 import websocket from '@fastify/websocket'
 import * as path from 'path'
+import { SQLiteWithFS } from './persistence'
 
 const app = Fastify({ logger: true })
 
 const builtRoot = '/tmp/forest/output'
 const contentRoot = '/tmp/forest/trees'
+const dbPath = 'state.db'
 
 app.register(fastifyStatic, {
   root: builtRoot,
@@ -19,34 +21,14 @@ app.register(fastifyStatic, {
 
 await app.register(websocket) //vscode is being stupid
 
-
-export const schema = `CREATE TABLE IF NOT EXISTS "documents" (
-  "name" varchar(255) NOT NULL,
-  "path" varchar(255) NOT NULL,
-  "data" blob NOT NULL,
-  UNIQUE(name)
-)`
+const persistence = new SQLiteWithFS(dbPath, contentRoot)
 
 const hocuspocus = Server.configure({
   async onConnect() {
     console.log('🔮')
   },
-//this is wrong, will cause duplicated text when backend is restarted while frontend stays on
-  async onLoadDocument(data: onLoadDocumentPayload) {
-    const name = data.documentName
-    const contents = await readFile(path.join(contentRoot, name), { encoding: 'utf8' })
-    const doc = new Y.Doc()
-    const ycontents = doc.getText('content')
-    ycontents.insert(0, contents)
-    return doc
-  },
 
-  async onStoreDocument(data: onStoreDocumentPayload) {
-    const name = data.documentName
-    await writeFile(contentRoot + "/" + name, data.document.getText('content').toString(), {})
-  },
-
-  extensions: [],
+  extensions: [persistence],
 })
 
 app.get('/collaboration', { websocket: true }, (socket, req) => {
