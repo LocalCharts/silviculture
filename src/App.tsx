@@ -1,7 +1,8 @@
 import { HocuspocusProvider } from '@hocuspocus/provider'
 import { Editor } from './Editor'
 import { Preview, PreviewProps } from './Preview'
-import { createResource, createSignal, JSX, JSXElement, Show, splitProps } from 'solid-js'
+import { createResource, createSignal, JSX, JSXElement, Show, splitProps,createMemo, Accessor } from 'solid-js'
+import { BuildResult } from '../common/api'
 import ky from 'ky'
 
 enum PaneState {
@@ -22,6 +23,7 @@ type TopBarChoiceProps = {
   enabled: boolean
 } & JSX.HTMLAttributes<HTMLButtonElement>
 
+//split into topbar.tsx?
 function TopBarChoice (props: TopBarChoiceProps): JSXElement {
   const [, rest] = splitProps(props, ['enabled'])
   return (
@@ -70,11 +72,14 @@ function TopBar (props: TopBarProps): JSXElement {
   )
 }
 
-async function loadPreview (): Promise<PreviewProps> {
+async function loadResult (): Promise<BuildResult> {
   const content = await (await ky.get('/built/ocl-0001.xml')).text()
-  const xsl = await (await ky.get('/built/forest.xsl')).text()
   console.log('got new content')
-  return { content, xsl }
+  return { success: true, content }
+}
+
+async function loadXSL (): Promise<string> {
+  return await (await ky.get('/built/forest.xsl')).text()
 }
 
 function App (): JSXElement {
@@ -90,29 +95,39 @@ function App (): JSXElement {
 
   const [paneState, setPaneState] = createSignal(PaneState.EDITOR_AND_PREVIEW)
 
-  const [preview, { mutate }] = createResource(loadPreview)
+  const [xsl, {}] = createResource(loadXSL)
+  const [buildResult, { mutate: mutateBuildResult }] = createResource(loadResult)
+
+  const previewProps: Accessor<PreviewProps | null> = createMemo(() => {
+    const xslVal = xsl()
+    const buildResultVal = buildResult()
+    if (xslVal !== undefined && buildResultVal !== undefined) {
+      return { xsl: xslVal, result: buildResultVal }
+    } else {
+      return null;
+    }
+  })
 
   return (
     <div class='container font-sans mx-auto'>
       <TopBar state={paneState()} setState={setPaneState} />
-      <div class='flex flex-row'>
-        <Show when={hasEditor(paneState())}>
-          <div class='flex-1 p-4'>
+      <div class='flex flex-1'>
+        {hasEditor(paneState()) && (
+          <div class={paneState() === PaneState.EDITOR_ONLY ? 'w-full p-4' : 'w-1/2 p-4'}>
             <Editor
               ytext={ytext}
               provider={provider}
-              setContent={(content: string) =>
-                mutate(p => { return { xsl: p?.xsl as string, content } })}
+              setResult={mutateBuildResult}
             />
           </div>
-        </Show>
-        <Show when={hasPreview(paneState())}>
-          <div class='flex-1 p-4'>
-            <Show when={preview()}>
+        )}
+      {hasPreview(paneState()) && (
+          <div class={paneState() === PaneState.PREVIEW_ONLY ? 'w-full p-4' : 'w-1/2 p-4'}>
+            <Show when={previewProps()}>
               {props => <Preview {...props()} />}
             </Show>
           </div>
-        </Show>
+        )}
       </div>
     </div>
   )

@@ -1,8 +1,9 @@
 import autoRenderMath from 'katex/contrib/auto-render'
-import { JSXElement, createMemo } from 'solid-js'
+import { JSXElement, createMemo, Switch, Match } from 'solid-js'
+import { BuildResult } from '../common/api'
 
 export interface PreviewProps {
-  content: string
+  result: BuildResult,
   xsl: string
 }
 
@@ -17,19 +18,28 @@ export function Preview (props: PreviewProps): JSXElement {
   })
 
   const content = createMemo(() => {
-    console.log(props.content)
-    const transformed = parser.parseFromString(props.content, 'application/xml')
-    const doc = processor().transformToDocument(transformed)
-    const content = doc.getElementsByClassName('tree-content')[0] as HTMLElement
-    autoRenderMath(content)
-    return content
+    console.log(props.result)
+    if (props.result.success) {
+      const transformed = parser.parseFromString(props.result.content, 'application/xml')
+      const doc = processor().transformToDocument(transformed)
+      const content = doc.getElementsByClassName('tree-content')[0] as HTMLElement
+      autoRenderMath(content)
+      return content
+    }
   })
 
   return (
     <div>
-      <div>
-        {content()}
-      </div>
+        <Switch>
+          <Match when={props.result.success}>
+            {content()}
+          </Match>
+          <Match when={!props.result.success}>
+            <pre class="whitespace-normal">
+              {(props.result as any).stderr}
+            </pre>
+          </Match>
+        </Switch>
     </div>
   )
 }

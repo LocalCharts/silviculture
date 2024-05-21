@@ -8,6 +8,7 @@ import { EditorState } from '@codemirror/state'
 import { HocuspocusProvider } from '@hocuspocus/provider'
 import { vim, Vim } from '@replit/codemirror-vim'
 import { JSXElement } from 'solid-js'
+import { BuildResult } from '../common/api'
 
 export const usercolors = [
   { color: '#30bced', light: '#30bced33' },
@@ -26,12 +27,9 @@ export const userColor = usercolors[random.uint32() % usercolors.length]
 interface EditorProps {
   ytext: Y.Text
   provider: HocuspocusProvider
-  setContent: (content: string) => void
+  setResult: (content: BuildResult) => void
 }
 
-interface BuildResult {
-  content: string
-}
 
 export function Editor (props: EditorProps): JSXElement {
   let ref: Element
@@ -46,7 +44,7 @@ export function Editor (props: EditorProps): JSXElement {
     const result = await ky
       .post('/api/build', { json: { tree: 'ocl-0001' }, timeout: false })
       .json() as BuildResult
-    props.setContent(result.content)
+    props.setResult(result)
   }
 
   function onload (elt: Element): void {
