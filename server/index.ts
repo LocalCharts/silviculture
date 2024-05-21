@@ -25,6 +25,7 @@ app.register(fastifyStatic, {
 await app.register(websocket) //vscode is being stupid
 
 const persistence = new SQLiteWithFS(dbPath, contentRoot)
+//change
 
 const hocuspocus = Server.configure({
   async onConnect() {
@@ -54,7 +55,7 @@ app.post('/api/build', async (req) => {
     errors.push(data)
     console.error(data.toString())
   })
-  const finishedPromise = new Promise((resolve, reject) => { //reject not yet handled!
+  const finishedPromise = new Promise((resolve, reject) => { 
     builder.on('close', errno => {
       if (errno !== 0) {
         console.log('build failed')

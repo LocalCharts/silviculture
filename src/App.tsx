@@ -1,9 +1,11 @@
 import { HocuspocusProvider } from '@hocuspocus/provider'
 import { Editor } from './Editor'
 import { Preview, PreviewProps } from './Preview'
-import { createResource, createSignal, JSX, JSXElement, Show, splitProps,createMemo, Accessor } from 'solid-js'
+import { createResource, createSignal, JSX, JSXElement, Show, splitProps,createMemo, Accessor, createEffect } from 'solid-js'
 import { BuildResult } from '../common/api'
+import {CommandMenu} from './cmdk'
 import ky from 'ky'
+//import { prototype } from 'events'
 
 enum PaneState {
   EDITOR_AND_PREVIEW,
@@ -28,7 +30,7 @@ function TopBarChoice (props: TopBarChoiceProps): JSXElement {
   const [, rest] = splitProps(props, ['enabled'])
   return (
     <button
-      class='py-1 px-3 border-1 border-solid border-black'
+      class='py-1 px-3 border-1 border-solid border-black' //should use Button.tsx?
       classList={{
         'bg-slate-200': props.enabled,
         'hover:bg-slate-300': props.enabled,
@@ -43,7 +45,9 @@ function TopBarChoice (props: TopBarChoiceProps): JSXElement {
 
 interface TopBarProps {
   state: PaneState
+  vimstate: boolean
   setState: (s: PaneState) => void
+  setVimState: (s: boolean) => void
 }
 
 function TopBar (props: TopBarProps): JSXElement {
@@ -67,6 +71,13 @@ function TopBar (props: TopBarProps): JSXElement {
         onClick={_ => props.setState(PaneState.PREVIEW_ONLY)}
       >
         <div class='i-tabler-eye' />
+      </TopBarChoice>
+      <div style="margin: 3px"></div>
+      <TopBarChoice
+        enabled={props.vimstate === true}
+        onClick={_ => props.setVimState(!props.vimstate)}
+      >
+        <div class="i-simple-icons:vim"></div>
       </TopBarChoice>
     </div>
   )
@@ -94,7 +105,8 @@ function App (): JSXElement {
   const ytext = provider.document.getText('content')
 
   const [paneState, setPaneState] = createSignal(PaneState.EDITOR_AND_PREVIEW)
-
+  const [vimState,setVimState] = createSignal(false)
+  createEffect(() => {console.log('vimstate changed to',vimState())})
   const [xsl, {}] = createResource(loadXSL)
   const [buildResult, { mutate: mutateBuildResult }] = createResource(loadResult)
 
@@ -107,16 +119,18 @@ function App (): JSXElement {
       return null;
     }
   })
-
   return (
     <div class='container font-sans mx-auto'>
-      <TopBar state={paneState()} setState={setPaneState} />
+      <TopBar state={paneState()} vimstate={vimState()} setState={setPaneState} setVimState={setVimState}/>
+      <CommandMenu />
       <div class='flex flex-1'>
+        
         {hasEditor(paneState()) && (
           <div class={paneState() === PaneState.EDITOR_ONLY ? 'w-full p-4' : 'w-1/2 p-4'}>
             <Editor
               ytext={ytext}
               provider={provider}
+              vibindings={vimState()}
               setResult={mutateBuildResult}
             />
           </div>

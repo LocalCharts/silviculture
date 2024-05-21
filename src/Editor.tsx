@@ -4,10 +4,10 @@ import ky from 'ky'
 // @ts-expect-error
 import { yCollab } from 'y-codemirror.next'
 import { EditorView, basicSetup } from 'codemirror'
-import { EditorState } from '@codemirror/state'
+import { EditorState, Compartment } from '@codemirror/state'
 import { HocuspocusProvider } from '@hocuspocus/provider'
 import { vim, Vim } from '@replit/codemirror-vim'
-import { JSXElement } from 'solid-js'
+import { JSXElement, createEffect } from 'solid-js'
 import { BuildResult } from '../common/api'
 
 export const usercolors = [
@@ -27,6 +27,7 @@ export const userColor = usercolors[random.uint32() % usercolors.length]
 interface EditorProps {
   ytext: Y.Text
   provider: HocuspocusProvider
+  vibindings : boolean
   setResult: (content: BuildResult) => void
 }
 
@@ -52,24 +53,36 @@ export function Editor (props: EditorProps): JSXElement {
 
     const ytext = props.ytext
     const provider = props.provider
-
+    const vimConf = new Compartment
     const undoManager = new Y.UndoManager(ytext)
 
     Vim.defineEx('write', 'w', build)
-
-    const state = EditorState.create({
+    let state = EditorState.create({
       doc: ytext.toString(),
       extensions: [
-        vim(),
+        vimConf.of(vim()),
         basicSetup,
         EditorView.lineWrapping,
         yCollab(ytext, provider.awareness, { undoManager })
       ]
     })
 
-    new EditorView({
+    const view = new EditorView({
       state,
       parent: ref
+    })
+
+    createEffect(() => {
+      console.log('vimstate changed to',props.vibindings)
+      if (props.vibindings) {
+        view.dispatch({
+          effects: vimConf.reconfigure(vim())
+        })
+      } else {
+        view.dispatch({
+          effects: vimConf.reconfigure([])
+        })
+      }
     })
   }
 
