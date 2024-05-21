@@ -60,6 +60,7 @@
                 forest.packages.${pkgs.stdenv.system}.tldist
               ]}
           '';
+          dontStrip = true;
         };
     });
     devShells = eachSystem (pkgs: {

@@ -1,6 +1,5 @@
 import {Command } from 'cmdk-solid'
 import {createSignal, onMount, onCleanup} from 'solid-js'
-import "./styles/test.css";
 export {CommandMenu};
 
 
