@@ -1,5 +1,5 @@
 import {Command } from 'cmdk-solid'
-import {createSignal, onMount, onCleanup} from 'solid-js'
+import {createSignal, onMount, onCleanup, Show} from 'solid-js'
 export {CommandMenu};
 
 type ItemProps = {
