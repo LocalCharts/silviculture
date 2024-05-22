@@ -30,7 +30,8 @@ export function Preview (props: PreviewProps): JSXElement {
   })
 
   return (
-    <div class="preview p-2">
+    <div class="m-2 preview">
+      <div class="block">
       <Switch>
         <Match when={props.result.success}>
           {content()}
@@ -44,6 +45,7 @@ export function Preview (props: PreviewProps): JSXElement {
           </pre>
         </Match>
       </Switch>
+      </div>
     </div>
   )
 }
