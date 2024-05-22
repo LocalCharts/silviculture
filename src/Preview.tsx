@@ -1,6 +1,7 @@
 import autoRenderMath from 'katex/contrib/auto-render'
 import { JSXElement, createMemo, Switch, Match } from 'solid-js'
 import { BuildResult } from '../common/api'
+import './style.css'
 
 export interface PreviewProps {
   result: BuildResult,
@@ -29,18 +30,20 @@ export function Preview (props: PreviewProps): JSXElement {
   })
 
   return (
-    <Switch>
-      <Match when={props.result.success}>
-        {content()}
-      </Match>
-      <Match when={!props.result.success}>
-        <pre class="whitespace-pre-wrap text-xs">
-          {(props.result as any).stderr}
-        </pre>
-        <pre class="whitespace-pre-wrap text-xs">
-          {(props.result as any).stdout}
-        </pre>
-      </Match>
-    </Switch>
+    <div class="preview p-2">
+      <Switch>
+        <Match when={props.result.success}>
+          {content()}
+        </Match>
+        <Match when={!props.result.success}>
+          <pre class="whitespace-pre-wrap text-xs">
+            {(props.result as any).stderr}
+          </pre>
+          <pre class="whitespace-pre-wrap text-xs">
+            {(props.result as any).stdout}
+          </pre>
+        </Match>
+      </Switch>
+    </div>
   )
 }

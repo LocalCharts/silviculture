@@ -7,6 +7,7 @@ import { BuildResult } from '../common/api'
 import {CommandMenu} from './cmdk'
 import ky from 'ky'
 import { Pane } from './Pane'
+import { Dynamic } from 'solid-js/web'
 //import { prototype } from 'events'
 
 enum PaneState {
@@ -95,25 +96,32 @@ async function loadXSL (): Promise<string> {
   return await (await ky.get('/built/forest.xsl')).text()
 }
 
-
 function App (): JSXElement {
   const params = useParams()
+  const tree = createMemo(() => {
+    return params.tree.replace(/\.xml$/, '')
+  })
   // Connect it to the backend
-  const provider = new HocuspocusProvider({
-    url: '/collaboration',
-    name: params.tree + '.tree'
+  const provider = createMemo(() => {
+    return new HocuspocusProvider({
+      url: '/collaboration',
+      name: tree() + '.tree'
+    })
   })
 
   // Define `tasks` as an Array
 
-  const ytext = provider.document.getText('content')
+  const ytext = createMemo(() => {
+    return provider().document.getText('content')
+  })
 
   const [paneState, setPaneState] = createSignal(PaneState.EDITOR_AND_PREVIEW)
   const [vimState,setVimState] = createSignal(false)
   createEffect(() => {console.log('vimstate changed to',vimState())})
   const [xsl, {}] = createResource(loadXSL)
-  const [buildResult, { mutate: mutateBuildResult }] =
-    createResource(() => loadResult(params.tree))
+
+  const [buildResult, { mutate: mutateBuildResult, refetch: refetchBuildResult }] =
+    createResource(() => loadResult(tree()))
 
   const previewProps: Accessor<PreviewProps | null> = createMemo(() => {
     const xslVal = xsl()
@@ -124,6 +132,25 @@ function App (): JSXElement {
       return null;
     }
   })
+
+  const editor = createMemo(() => {
+    const ytextNow = ytext()
+    const providerNow = provider()
+    const treeNow = tree()
+
+    refetchBuildResult()
+
+    return (
+      <Editor
+        ytext={ytextNow}
+        provider={providerNow}
+        tree={treeNow}
+        vibindings={vimState()}
+        setResult={mutateBuildResult}
+      />
+    )
+  })
+
   return (
     <div class='lg-container font-sans mx-auto h-screen max-h-screen box-border max-w-296'>
       <div class="flex flex-col h-full box-border">
@@ -137,13 +164,7 @@ function App (): JSXElement {
           class='flex flex-grow flex-row overflow-y-auto box-border border-2px border-black border-solid mx-auto'>
           {hasEditor(paneState()) && (
             <Pane fullWidth={paneState() === PaneState.EDITOR_ONLY}>
-              <Editor
-                ytext={ytext}
-                provider={provider}
-                vibindings={vimState()}
-                setResult={mutateBuildResult}
-                tree={params.tree}
-              />
+              {editor()}
             </Pane>
           )}
           {paneState() === PaneState.EDITOR_AND_PREVIEW && (
