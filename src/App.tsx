@@ -1,4 +1,5 @@
 import { HocuspocusProvider } from '@hocuspocus/provider'
+import { useParams } from '@solidjs/router'
 import { Editor } from './Editor'
 import { Preview, PreviewProps } from './Preview'
 import { createResource, createSignal, JSX, JSXElement, Show, splitProps,createMemo, Accessor, createEffect } from 'solid-js'
@@ -84,8 +85,8 @@ function TopBar (props: TopBarProps): JSXElement {
   )
 }
 
-async function loadResult (): Promise<BuildResult> {
-  const content = await (await ky.get('/built/ocl-0001.xml')).text()
+async function loadResult (treeName: string): Promise<BuildResult> {
+  const content = await (await ky.get(`/built/${treeName}.xml`)).text()
   console.log('got new content')
   return { success: true, content }
 }
@@ -94,11 +95,13 @@ async function loadXSL (): Promise<string> {
   return await (await ky.get('/built/forest.xsl')).text()
 }
 
+
 function App (): JSXElement {
+  const params = useParams()
   // Connect it to the backend
   const provider = new HocuspocusProvider({
     url: '/collaboration',
-    name: 'ocl-0001.tree'
+    name: params.tree + '.tree'
   })
 
   // Define `tasks` as an Array
@@ -109,7 +112,8 @@ function App (): JSXElement {
   const [vimState,setVimState] = createSignal(false)
   createEffect(() => {console.log('vimstate changed to',vimState())})
   const [xsl, {}] = createResource(loadXSL)
-  const [buildResult, { mutate: mutateBuildResult }] = createResource(loadResult)
+  const [buildResult, { mutate: mutateBuildResult }] =
+    createResource(() => loadResult(params.tree))
 
   const previewProps: Accessor<PreviewProps | null> = createMemo(() => {
     const xslVal = xsl()
@@ -121,11 +125,16 @@ function App (): JSXElement {
     }
   })
   return (
-    <div class='lg-container font-sans mx-auto h-screen max-h-screen box-border max-w-286'>
+    <div class='lg-container font-sans mx-auto h-screen max-h-screen box-border max-w-296'>
       <div class="flex flex-col h-full box-border">
         <TopBar state={paneState()} vimstate={vimState()} setState={setPaneState} setVimState={setVimState}/>
         <CommandMenu />
-        <div class='flex flex-grow flex-row overflow-y-auto box-border border-2px border-black border-solid'>
+        <div
+          classList={{
+            'max-w-160': paneState() !== PaneState.EDITOR_AND_PREVIEW,
+            'max-w-full': paneState() === PaneState.EDITOR_AND_PREVIEW
+          }}
+          class='flex flex-grow flex-row overflow-y-auto box-border border-2px border-black border-solid mx-auto'>
           {hasEditor(paneState()) && (
             <Pane fullWidth={paneState() === PaneState.EDITOR_ONLY}>
               <Editor
@@ -133,10 +142,13 @@ function App (): JSXElement {
                 provider={provider}
                 vibindings={vimState()}
                 setResult={mutateBuildResult}
+                tree={params.tree}
               />
             </Pane>
           )}
-          <div class="w-2px h-full bg-black mx-1"></div>
+          {paneState() === PaneState.EDITOR_AND_PREVIEW && (
+            <div class="w-2px h-full bg-black mx-1"></div>
+          )}
           {hasPreview(paneState()) && (
             <Pane fullWidth={paneState() === PaneState.PREVIEW_ONLY}>
               <Show when={previewProps()}>

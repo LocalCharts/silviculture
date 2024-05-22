@@ -29,6 +29,7 @@ interface EditorProps {
   provider: HocuspocusProvider
   vibindings : boolean
   setResult: (content: BuildResult) => void,
+  tree: string
 }
 
 
@@ -43,7 +44,7 @@ export function Editor (props: EditorProps): JSXElement {
 
   async function build (): Promise<void> {
     const result = await ky
-      .post('/api/build', { json: { tree: 'ocl-0001' }, timeout: false })
+      .post('/api/build', { json: { tree: props.tree }, timeout: false })
       .json() as BuildResult
     props.setResult(result)
   }

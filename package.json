@@ -21,6 +21,7 @@
     "@hocuspocus/provider": "^2.12.2",
     "@hocuspocus/server": "^2.12.2",
     "@replit/codemirror-vim": "^6.2.1",
+    "@solidjs/router": "^0.13.3",
     "@unocss/reset": "^0.59.4",
     "cmdk-solid": "^1.0.1",
     "codemirror": "^6.0.1",

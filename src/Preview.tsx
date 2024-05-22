@@ -5,7 +5,6 @@ import { BuildResult } from '../common/api'
 export interface PreviewProps {
   result: BuildResult,
   xsl: string,
-  fullWidth: boolean
 }
 
 export function Preview (props: PreviewProps): JSXElement {
