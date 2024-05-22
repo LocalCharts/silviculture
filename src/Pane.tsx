@@ -19,3 +19,9 @@ export function Pane(props: PaneProps) {
     </div>
   )
 }
+
+export enum PaneState {
+  EDITOR_AND_PREVIEW,
+  EDITOR_ONLY,
+  PREVIEW_ONLY
+}
