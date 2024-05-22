@@ -30,7 +30,7 @@ interface TopBarProps {
   vimstate: boolean
   setState: (s: PaneState) => void
   setVimState: (s: boolean) => void
-  //buildFn : () => Promise<void>
+  buildFn : () => Promise<void>
 }
 
 function TopBar (props: TopBarProps): JSXElement {

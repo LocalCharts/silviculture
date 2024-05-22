@@ -43,26 +43,34 @@ function App (): JSXElement {
   // Define `tasks` as an Array
 
   const ytext = createMemo(() => {
-    return provider().document.getText('content')
-  })
+    return provider().document.getText("content");
+  });
 
-  const [paneState, setPaneState] = createSignal(PaneState.EDITOR_AND_PREVIEW)
-  const [vimState,setVimState] = createSignal(false)
-  createEffect(() => {console.log('vimstate changed to',vimState())})
-  const [xsl, {}] = createResource(loadXSL)
+  const [paneState, setPaneState] = createSignal(PaneState.EDITOR_AND_PREVIEW);
+  const [vimState, setVimState] = createSignal(false);
+  const [xsl, {}] = createResource(loadXSL);
 
-  const [buildResult, { mutate: mutateBuildResult, refetch: refetchBuildResult }] =
-    createResource(() => loadResult(tree()))
+  const [
+    buildResult,
+    { mutate: mutateBuildResult, refetch: refetchBuildResult },
+  ] = createResource(() => loadResult(tree()));
+
+  async function build(): Promise<void> {
+    const result = (await ky
+      .post("/api/build", { json: { tree: tree() }, timeout: false })
+      .json()) as BuildResult;
+    mutateBuildResult(result);
+  }
 
   const previewProps: Accessor<PreviewProps | null> = createMemo(() => {
-    const xslVal = xsl()
-    const buildResultVal = buildResult()
+    const xslVal = xsl();
+    const buildResultVal = buildResult();
     if (xslVal !== undefined && buildResultVal !== undefined) {
-      return { xsl: xslVal, result: buildResultVal }
+      return { xsl: xslVal, result: buildResultVal };
     } else {
       return null;
     }
-  })
+  });
 
   const editor = createMemo(() => {
     const ytextNow = ytext()
@@ -85,7 +93,7 @@ function App (): JSXElement {
   return (
     <div class='lg-container font-sans mx-auto h-screen max-h-screen box-border max-w-296'>
       <div class="flex flex-col h-full box-border">
-        <TopBar state={paneState()} vimstate={vimState()} setState={setPaneState} setVimState={setVimState}/>
+        <TopBar state={paneState()} vimstate={vimState()} setState={setPaneState} setVimState={setVimState} buildFn={build}/>
         <CommandMenu />
         <div
           classList={{
