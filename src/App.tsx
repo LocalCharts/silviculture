@@ -5,6 +5,7 @@ import { createResource, createSignal, JSX, JSXElement, Show, splitProps,createM
 import { BuildResult } from '../common/api'
 import {CommandMenu} from './cmdk'
 import ky from 'ky'
+import { Pane } from './Pane'
 //import { prototype } from 'events'
 
 enum PaneState {
@@ -52,7 +53,7 @@ interface TopBarProps {
 
 function TopBar (props: TopBarProps): JSXElement {
   return (
-    <div class='flex flex-row'>
+    <div class='flex flex-row m-2'>
       <TopBarChoice
         enabled={props.state === PaneState.EDITOR_ONLY}
         onClick={_ => props.setState(PaneState.EDITOR_ONLY)}
@@ -120,28 +121,30 @@ function App (): JSXElement {
     }
   })
   return (
-    <div class='container font-sans mx-auto'>
-      <TopBar state={paneState()} vimstate={vimState()} setState={setPaneState} setVimState={setVimState}/>
-      <CommandMenu />
-      <div class='flex flex-1'>
-        
-        {hasEditor(paneState()) && (
-          <div class={paneState() === PaneState.EDITOR_ONLY ? 'w-full p-4' : 'w-1/2 p-4'}>
-            <Editor
-              ytext={ytext}
-              provider={provider}
-              vibindings={vimState()}
-              setResult={mutateBuildResult}
-            />
-          </div>
-        )}
-      {hasPreview(paneState()) && (
-          <div class={paneState() === PaneState.PREVIEW_ONLY ? 'w-full p-4' : 'w-1/2 p-4'}>
-            <Show when={previewProps()}>
-              {props => <Preview {...props()} />}
-            </Show>
-          </div>
-        )}
+    <div class='lg-container font-sans mx-auto h-screen max-h-screen box-border max-w-286'>
+      <div class="flex flex-col h-full box-border">
+        <TopBar state={paneState()} vimstate={vimState()} setState={setPaneState} setVimState={setVimState}/>
+        <CommandMenu />
+        <div class='flex flex-grow flex-row overflow-y-auto box-border border-2px border-black border-solid'>
+          {hasEditor(paneState()) && (
+            <Pane fullWidth={paneState() === PaneState.EDITOR_ONLY}>
+              <Editor
+                ytext={ytext}
+                provider={provider}
+                vibindings={vimState()}
+                setResult={mutateBuildResult}
+              />
+            </Pane>
+          )}
+          <div class="w-2px h-full bg-black mx-1"></div>
+          {hasPreview(paneState()) && (
+            <Pane fullWidth={paneState() === PaneState.PREVIEW_ONLY}>
+              <Show when={previewProps()}>
+                {props => <Preview {...props()} />}
+              </Show>
+            </Pane>
+          )}
+        </div>
       </div>
     </div>
   )

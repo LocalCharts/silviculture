@@ -28,7 +28,7 @@ interface EditorProps {
   ytext: Y.Text
   provider: HocuspocusProvider
   vibindings : boolean
-  setResult: (content: BuildResult) => void
+  setResult: (content: BuildResult) => void,
 }
 
 
@@ -87,8 +87,8 @@ export function Editor (props: EditorProps): JSXElement {
   }
 
   return (
-    <div>
-      <div ref={onload} />
-    </div>
+    <div
+      ref={onload}
+    />
   )
 }

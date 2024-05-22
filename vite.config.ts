@@ -5,7 +5,7 @@ import UnoCSS from 'unocss/vite'
 import solid from 'vite-plugin-solid'
 
 const path = fileURLToPath(import.meta.url)
-const root = resolve(dirname(path))
+const root = resolve(dirname(path) + '/src')
 
 export default defineConfig({
   root,

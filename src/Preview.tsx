@@ -4,7 +4,8 @@ import { BuildResult } from '../common/api'
 
 export interface PreviewProps {
   result: BuildResult,
-  xsl: string
+  xsl: string,
+  fullWidth: boolean
 }
 
 export function Preview (props: PreviewProps): JSXElement {
@@ -29,17 +30,18 @@ export function Preview (props: PreviewProps): JSXElement {
   })
 
   return (
-    <div>
-        <Switch>
-          <Match when={props.result.success}>
-            {content()}
-          </Match>
-          <Match when={!props.result.success}>
-            <pre class="whitespace-normal">
-              {(props.result as any).stderr}
-            </pre>
-          </Match>
-        </Switch>
-    </div>
+    <Switch>
+      <Match when={props.result.success}>
+        {content()}
+      </Match>
+      <Match when={!props.result.success}>
+        <pre class="whitespace-pre-wrap text-xs">
+          {(props.result as any).stderr}
+        </pre>
+        <pre class="whitespace-pre-wrap text-xs">
+          {(props.result as any).stdout}
+        </pre>
+      </Match>
+    </Switch>
   )
 }
