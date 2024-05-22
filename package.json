@@ -30,6 +30,7 @@
     "ky": "^1.2.4",
     "solid-js": "^1.8.15",
     "y-codemirror.next": "^0.3.3",
+    "yarn": "^1.22.22",
     "yjs": "^13.6.15"
   },
   "devDependencies": {

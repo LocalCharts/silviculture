@@ -158,6 +158,7 @@ function App (): JSXElement {
           )}
         </div>
       </div>
+      <CommandMenu />
     </div>
   )
 }
