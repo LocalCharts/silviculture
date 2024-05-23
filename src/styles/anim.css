@@ -1,0 +1,22 @@
+@keyframes enlarge {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.5);
+  }
+}
+
+.animated-letter {
+  display: inline-block;
+  animation: enlarge 1s infinite;
+}
+
+.letter-1 { animation-delay: 0s; }
+.letter-2 { animation-delay: 0.1s; }
+.letter-3 { animation-delay: 0.2s; }
+.letter-4 { animation-delay: 0.3s; }
+.letter-5 { animation-delay: 0.4s; }
+.letter-6 { animation-delay: 0.5s; }
+.letter-7 { animation-delay: 0.6s; }
+.letter-8 { animation-delay: 0.7s; }

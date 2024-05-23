@@ -8,6 +8,7 @@ import {CommandMenu} from './cmdk'
 import ky from 'ky'
 import { Pane, PaneState } from './Pane'
 import { TopBar } from './TopBar'
+import './styles/anim.css'
 
 function hasEditor (s: PaneState): boolean {
   return (s === PaneState.EDITOR_ONLY || s === PaneState.EDITOR_AND_PREVIEW)
@@ -54,12 +55,17 @@ function App (): JSXElement {
     buildResult,
     { mutate: mutateBuildResult, refetch: refetchBuildResult },
   ] = createResource(() => loadResult(tree()));
+  const [isBuilding, setIsBuilding] = createSignal(false);
 
   async function build(): Promise<void> {
+    console.log("building")
+    setIsBuilding(true);
     const result = (await ky
       .post("/api/build", { json: { tree: tree() }, timeout: false })
       .json()) as BuildResult;
     mutateBuildResult(result);
+    console.log("build complete")
+    setIsBuilding(false);
   }
 
   const previewProps: Accessor<PreviewProps | null> = createMemo(() => {
@@ -89,18 +95,33 @@ function App (): JSXElement {
       />
     )
   })
-
+  //not sure the top-8 positioning will always look good
   return (
-    <div class='lg-container font-sans mx-auto h-screen max-h-screen box-border max-w-296'>
+    <div class="lg-container font-sans mx-auto h-screen max-h-screen box-border max-w-296">
+      {isBuilding() && (
+        <div class="absolute right-1/4 top-8">
+          {"building".split("").map((char, index) => (
+            <span class={`animated-letter letter-${index + 1}`}>{char}</span>
+          ))}
+        </div>
+      )}
+
       <div class="flex flex-col h-full box-border">
-        <TopBar state={paneState()} vimstate={vimState()} setState={setPaneState} setVimState={setVimState} buildFunction={build}/>
-        <CommandMenu buildFunction={build}/>
+        <TopBar
+          state={paneState()}
+          vimstate={vimState()}
+          setState={setPaneState}
+          setVimState={setVimState}
+          buildFunction={build}
+        />
+        <CommandMenu buildFunction={build} />
         <div
           classList={{
-            'max-w-160': paneState() !== PaneState.EDITOR_AND_PREVIEW,
-            'max-w-full': paneState() === PaneState.EDITOR_AND_PREVIEW
+            "max-w-160": paneState() !== PaneState.EDITOR_AND_PREVIEW,
+            "max-w-full": paneState() === PaneState.EDITOR_AND_PREVIEW,
           }}
-          class='flex flex-grow flex-row overflow-y-auto box-border border-2px border-black border-solid mx-auto'>
+          class="flex flex-grow flex-row overflow-y-auto box-border border-2px border-black border-solid mx-auto"
+        >
           {hasEditor(paneState()) && (
             <Pane fullWidth={paneState() === PaneState.EDITOR_ONLY}>
               {editor()}
@@ -112,14 +133,14 @@ function App (): JSXElement {
           {hasPreview(paneState()) && (
             <Pane fullWidth={paneState() === PaneState.PREVIEW_ONLY}>
               <Show when={previewProps()}>
-                {props => <Preview {...props()} />}
+                {(props) => <Preview {...props()} />}
               </Show>
             </Pane>
           )}
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default App
