@@ -1,7 +1,8 @@
 import {Command } from 'cmdk-solid'
 import {createSignal, onMount, onCleanup, Show} from 'solid-js'
+import {useNavigate } from '@solidjs/router'
 export {CommandMenu};
-
+//const navigate = useNavigate()
 type ItemProps = {
   name: string
   onSelect: (value:any) => void
@@ -22,6 +23,7 @@ type CommandMenuProps = {
 }
 const CommandMenu = (props: CommandMenuProps) => {
   const [open, setOpen] = createSignal(false)
+  
   let menuRef: HTMLElement
   // Toggle the menu when ⌘K is pressed
   onMount(() => {
@@ -64,6 +66,7 @@ function CommandInner (props: CommandMenuProps) {
   onMount(() => {
     ref.focus()
   })
+  const navigate = useNavigate();
   return <Command
         class="fixed top-5 left-1/2 -translate-x-1/2 bg-white p-6 border border-gray-200 rounded text-lg w-128 z-1000"
         label="Global Command Menu"  
@@ -73,7 +76,7 @@ function CommandInner (props: CommandMenuProps) {
         ref={el => ref = el} placeholder="type somethin'" />
         <Command.List>
           <Command.Empty>No results found.</Command.Empty>
-          <Item name="Here's a tree" onSelect={_=>{}}/>
+          <Item name="Here's a tree" onSelect={_=>{navigate("/kdc-0007")}}/>
           <Item name="build!" onSelect={_=>{props.buildFunction()}}/>
         </Command.List>
       </Command>
