@@ -5,6 +5,7 @@ import ky from 'ky'
 import { yCollab } from 'y-codemirror.next'
 import { EditorView, basicSetup } from 'codemirror'
 import { EditorState, Compartment } from '@codemirror/state'
+import { keymap } from '@codemirror/view'
 import { HocuspocusProvider } from '@hocuspocus/provider'
 import { vim, Vim } from '@replit/codemirror-vim'
 import { JSXElement, createEffect } from 'solid-js'
@@ -54,6 +55,9 @@ export function Editor (props: EditorProps): JSXElement {
     let state = EditorState.create({
       doc: ytext.toString(),
       extensions: [
+        keymap.of([
+          { key: "Mod-Enter", run: _ => {props.buildFn(); return true} }
+        ]),    
         vimConf.of(vim()),
         basicSetup,
         EditorView.lineWrapping,
