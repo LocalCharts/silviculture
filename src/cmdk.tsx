@@ -65,7 +65,7 @@ function CommandInner (props: CommandMenuProps) {
     ref.focus()
   })
   return <Command
-        class="fixed top-5 left-1/2 -translate-x-1/2 bg-white p-6 border border-gray-200 rounded text-lg w-128"
+        class="fixed top-5 left-1/2 -translate-x-1/2 bg-white p-6 border border-gray-200 rounded text-lg w-128 z-1000"
         label="Global Command Menu"  
       >
         <Command.Input
