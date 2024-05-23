@@ -28,7 +28,7 @@ interface EditorProps {
   ytext: Y.Text
   provider: HocuspocusProvider
   vibindings : boolean
-  setResult: (content: BuildResult) => void,
+  buildFn: () => Promise<void>
   tree: string
 }
 
@@ -42,13 +42,6 @@ export function Editor (props: EditorProps): JSXElement {
     colorLight: userColor.light
   })
 
-  async function build (): Promise<void> {
-    const result = await ky
-      .post('/api/build', { json: { tree: props.tree }, timeout: false })
-      .json() as BuildResult
-    props.setResult(result)
-  }
-
   function onload (elt: Element): void {
     ref = elt
 
@@ -57,7 +50,7 @@ export function Editor (props: EditorProps): JSXElement {
     const vimConf = new Compartment
     const undoManager = new Y.UndoManager(ytext)
 
-    Vim.defineEx('write', 'w', build)
+    Vim.defineEx('write', 'w', props.buildFn)
     let state = EditorState.create({
       doc: ytext.toString(),
       extensions: [
@@ -74,7 +67,6 @@ export function Editor (props: EditorProps): JSXElement {
     })
 
     createEffect(() => {
-      console.log('vimstate changed to',props.vibindings)
       if (props.vibindings) {
         view.dispatch({
           effects: vimConf.reconfigure(vim())

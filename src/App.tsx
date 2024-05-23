@@ -85,7 +85,7 @@ function App (): JSXElement {
         provider={providerNow}
         tree={treeNow}
         vibindings={vimState()}
-        setResult={mutateBuildResult}
+        buildFn={build}
       />
     )
   })
@@ -118,7 +118,6 @@ function App (): JSXElement {
           )}
         </div>
       </div>
-      <CommandMenu />
     </div>
   )
 }
