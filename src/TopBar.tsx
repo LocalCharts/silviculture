@@ -30,7 +30,7 @@ interface TopBarProps {
   vimstate: boolean
   setState: (s: PaneState) => void
   setVimState: (s: boolean) => void
-  buildFn : () => Promise<void>
+  buildFunction : () => Promise<void>
 }
 
 function TopBar (props: TopBarProps): JSXElement {
@@ -64,7 +64,7 @@ function TopBar (props: TopBarProps): JSXElement {
       </TopBarChoice>
       <TopBarChoice //tooltips!!!
         enabled={false}
-        onClick={_ => props.buildFn()}
+        onClick={_ => props.buildFunction()}
       >
         <div >build</div>
       </TopBarChoice>

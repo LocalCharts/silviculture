@@ -4,18 +4,23 @@ export {CommandMenu};
 
 type ItemProps = {
   name: string
+  onSelect: (value:any) => void
 }
 
 function Item (props: ItemProps) {
   return (
     <Command.Item
+      onSelect={props.onSelect}
       class="p-2 bg-gray-50 my-2">
       {props.name}
     </Command.Item>
   )
 }
 
-const CommandMenu = () => {
+type CommandMenuProps = {
+  buildFunction : () => Promise<void>
+}
+const CommandMenu = (props: CommandMenuProps) => {
   const [open, setOpen] = createSignal(false)
   let menuRef: HTMLElement
   // Toggle the menu when ⌘K is pressed
@@ -47,13 +52,14 @@ const CommandMenu = () => {
   return (
     <Show when={open()}>
       <div ref={el => menuRef = el}>
-        <CommandInner />
+        <CommandInner buildFunction={props.buildFunction}/>
       </div>
     </Show>
   );
 }
 
-function CommandInner () {
+
+function CommandInner (props: CommandMenuProps) {
   let ref: HTMLElement
   onMount(() => {
     ref.focus()
@@ -67,8 +73,8 @@ function CommandInner () {
         ref={el => ref = el} placeholder="type somethin'" />
         <Command.List>
           <Command.Empty>No results found.</Command.Empty>
-          <Item name="Here's a tree" />
-          <Item name="Here's a command" />
+          <Item name="Here's a tree" onSelect={_=>{}}/>
+          <Item name="build!" onSelect={_=>{props.buildFunction()}}/>
         </Command.List>
       </Command>
 }

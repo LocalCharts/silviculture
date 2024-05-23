@@ -93,8 +93,8 @@ function App (): JSXElement {
   return (
     <div class='lg-container font-sans mx-auto h-screen max-h-screen box-border max-w-296'>
       <div class="flex flex-col h-full box-border">
-        <TopBar state={paneState()} vimstate={vimState()} setState={setPaneState} setVimState={setVimState} buildFn={build}/>
-        <CommandMenu />
+        <TopBar state={paneState()} vimstate={vimState()} setState={setPaneState} setVimState={setVimState} buildFunction={build}/>
+        <CommandMenu buildFunction={build}/>
         <div
           classList={{
             'max-w-160': paneState() !== PaneState.EDITOR_AND_PREVIEW,
