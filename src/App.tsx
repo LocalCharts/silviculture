@@ -7,6 +7,7 @@ import { BuildResult } from '../common/api'
 import {CommandMenu} from './cmdk'
 import ky from 'ky'
 import { Pane, PaneState } from './Pane'
+import { Quiver } from './Quiver'
 import { TopBar } from './TopBar'
 import './styles/anim.css'
 
@@ -97,50 +98,53 @@ function App (): JSXElement {
   })
   //not sure the top-8 positioning will always look good
   return (
-    <div class="lg-container font-sans mx-auto h-screen max-h-screen box-border max-w-296">
-      {isBuilding() && (
-        <div class="absolute right-1/4 top-8">
-          {"building".split("").map((char, index) => (
-            <span class={`animated-letter letter-${index + 1}`}>{char}</span>
-          ))}
-        </div>
-      )}
+    <>
+      <div class="lg-container font-sans mx-auto h-screen max-h-screen box-border max-w-296">
+        {isBuilding() && (
+          <div class="absolute right-1/4 top-8">
+            {"building".split("").map((char, index) => (
+              <span class={`animated-letter letter-${index + 1}`}>{char}</span>
+            ))}
+          </div>
+        )}
 
-      <div class="flex flex-col h-full box-border">
-        <TopBar
-          state={paneState()}
-          vimstate={vimState()}
-          setState={setPaneState}
-          setVimState={setVimState}
-          buildFunction={build}
-        />
-        <CommandMenu buildFunction={build} />
-        <div
-          classList={{
-            "max-w-160": paneState() !== PaneState.EDITOR_AND_PREVIEW,
-            "max-w-full": paneState() === PaneState.EDITOR_AND_PREVIEW,
-          }}
-          class="flex flex-grow flex-row overflow-y-auto box-border border-2px border-black border-solid mx-auto"
-        >
-          {hasEditor(paneState()) && (
-            <Pane fullWidth={paneState() === PaneState.EDITOR_ONLY}>
-              {editor()}
-            </Pane>
-          )}
-          {paneState() === PaneState.EDITOR_AND_PREVIEW && (
-            <div class="w-2px h-full bg-black mx-1"></div>
-          )}
-          {hasPreview(paneState()) && (
-            <Pane fullWidth={paneState() === PaneState.PREVIEW_ONLY}>
-              <Show when={previewProps()}>
-                {(props) => <Preview {...props()} />}
-              </Show>
-            </Pane>
-          )}
+        <div class="flex flex-col h-full box-border">
+          <TopBar
+            state={paneState()}
+            vimstate={vimState()}
+            setState={setPaneState}
+            setVimState={setVimState}
+            buildFunction={build}
+          />
+          <CommandMenu buildFunction={build} />
+          <div
+            classList={{
+              "max-w-160": paneState() !== PaneState.EDITOR_AND_PREVIEW,
+              "max-w-full": paneState() === PaneState.EDITOR_AND_PREVIEW,
+            }}
+            class="flex flex-grow flex-row overflow-y-auto box-border border-2px border-black border-solid mx-auto"
+          >
+            {hasEditor(paneState()) && (
+              <Pane fullWidth={paneState() === PaneState.EDITOR_ONLY}>
+                {editor()}
+              </Pane>
+            )}
+            {paneState() === PaneState.EDITOR_AND_PREVIEW && (
+              <div class="w-2px h-full bg-black mx-1"></div>
+            )}
+            {hasPreview(paneState()) && (
+              <Pane fullWidth={paneState() === PaneState.PREVIEW_ONLY}>
+                <Show when={previewProps()}>
+                  {(props) => <Preview {...props()} />}
+                </Show>
+              </Pane>
+            )}
+          </div>
         </div>
       </div>
-    </div>
-  );
+      <Quiver />
+    </>
+  )
 }
 
 export default App

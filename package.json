@@ -28,6 +28,7 @@
     "fastify": "^4.26.2",
     "katex": "^0.16.10",
     "ky": "^1.2.4",
+    "quiver": "git+https://github.com/olynch/quiver.git#master",
     "solid-js": "^1.8.15",
     "y-codemirror.next": "^0.3.3",
     "yarn": "^1.22.22",
