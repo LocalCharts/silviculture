@@ -29,8 +29,8 @@ export class SQLiteWithFS implements Extension {
   db: sqlite3.Database
   contentRoot: string
 
-  constructor(dbpath: string, contentRoot: string) {
-    this.db = new sqlite3.Database(dbpath)
+  constructor(db: sqlite3.Database, contentRoot: string) {
+    this.db = db
     this.db.run(schema)
     this.contentRoot = contentRoot
   }

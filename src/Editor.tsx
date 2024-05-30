@@ -1,6 +1,5 @@
 import * as random from 'lib0/random'
 import * as Y from 'yjs'
-import ky from 'ky'
 // @ts-expect-error
 import { yCollab } from 'y-codemirror.next'
 import { EditorView, basicSetup } from 'codemirror'
@@ -9,7 +8,6 @@ import { keymap } from '@codemirror/view'
 import { HocuspocusProvider } from '@hocuspocus/provider'
 import { vim, Vim } from '@replit/codemirror-vim'
 import { JSXElement, createEffect } from 'solid-js'
-import { BuildResult } from '../common/api'
 
 export const usercolors = [
   { color: '#30bced', light: '#30bced33' },
@@ -29,7 +27,7 @@ interface EditorProps {
   ytext: Y.Text
   provider: HocuspocusProvider
   vibindings : boolean
-  buildFn: () => Promise<void>
+  buildFn: () => void
   tree: string
 }
 

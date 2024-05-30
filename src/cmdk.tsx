@@ -19,7 +19,7 @@ function Item (props: ItemProps) {
 }
 
 type CommandMenuProps = {
-  buildFunction : () => Promise<void>
+  buildFunction : () => void
 }
 const CommandMenu = (props: CommandMenuProps) => {
   const [open, setOpen] = createSignal(false)

@@ -19,9 +19,14 @@ export default defineConfig({
         target: 'ws://localhost:1234',
         ws: true
       },
+      '^/preview/.*': {
+        target: 'ws://localhost:1234',
+        ws: true
+      },
       '/api': {
         target: 'http://localhost:1234',
-        changeOrigin: true
+        ws: true,
+        changeOrigin: true,
       },
       '/built': {
         target: 'http://localhost:1234',

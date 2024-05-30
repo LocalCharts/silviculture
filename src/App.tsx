@@ -1,13 +1,12 @@
 import { HocuspocusProvider } from '@hocuspocus/provider'
 import { useParams } from '@solidjs/router'
 import { Editor } from './Editor'
-import { Preview, PreviewProps } from './Preview'
-import { createResource, createSignal, JSX, JSXElement, Show, splitProps,createMemo, Accessor, createEffect } from 'solid-js'
-import { BuildResult } from '../common/api'
+import { Preview } from './Preview'
+import { createSignal, JSXElement, createMemo } from 'solid-js'
 import {CommandMenu} from './cmdk'
 import ky from 'ky'
 import { Pane, PaneState } from './Pane'
-import { Quiver } from './Quiver'
+/* import { Quiver } from './Quiver' */
 import { TopBar } from './TopBar'
 import './styles/anim.css'
 
@@ -19,16 +18,6 @@ function hasPreview (s: PaneState): boolean {
   return (s === PaneState.PREVIEW_ONLY || s === PaneState.EDITOR_AND_PREVIEW)
 }
 
-async function loadResult (treeName: string): Promise<BuildResult> {
-  const content = await (await ky.get(`/built/${treeName}.xml`)).text()
-  console.log('got new content')
-  return { success: true, content }
-}
-
-async function loadXSL (): Promise<string> {
-  return await (await ky.get('/built/forest.xsl')).text()
-}
-
 function App (): JSXElement {
   const params = useParams()
   const tree = createMemo(() => {
@@ -37,7 +26,7 @@ function App (): JSXElement {
   // Connect it to the backend
   const provider = createMemo(() => {
     return new HocuspocusProvider({
-      url: '/collaboration',
+      url: 'ws://localhost:1234/collaboration',
       name: tree() + '.tree'
     })
   })
@@ -50,41 +39,15 @@ function App (): JSXElement {
 
   const [paneState, setPaneState] = createSignal(PaneState.EDITOR_AND_PREVIEW);
   const [vimState, setVimState] = createSignal(false);
-  const [xsl, {}] = createResource(loadXSL);
 
-  const [
-    buildResult,
-    { mutate: mutateBuildResult, refetch: refetchBuildResult },
-  ] = createResource(() => loadResult(tree()));
-  const [isBuilding, setIsBuilding] = createSignal(false);
-
-  async function build(): Promise<void> {
-    console.log("building")
-    setIsBuilding(true);
-    const result = (await ky
-      .post("/api/build", { json: { tree: tree() }, timeout: false })
-      .json()) as BuildResult;
-    mutateBuildResult(result);
-    console.log("build complete")
-    setIsBuilding(false);
+  function build() {
+    ky.post("/api/build", { json: { } })
   }
-
-  const previewProps: Accessor<PreviewProps | null> = createMemo(() => {
-    const xslVal = xsl();
-    const buildResultVal = buildResult();
-    if (xslVal !== undefined && buildResultVal !== undefined) {
-      return { xsl: xslVal, result: buildResultVal };
-    } else {
-      return null;
-    }
-  });
 
   const editor = createMemo(() => {
     const ytextNow = ytext()
     const providerNow = provider()
     const treeNow = tree()
-
-    refetchBuildResult()
 
     return (
       <Editor
@@ -96,54 +59,42 @@ function App (): JSXElement {
       />
     )
   })
+
   //not sure the top-8 positioning will always look good
   return (
-    <>
-      <div class="lg-container font-sans mx-auto h-screen max-h-screen box-border max-w-296">
-        {isBuilding() && (
-          <div class="absolute right-1/4 top-8">
-            {"building".split("").map((char, index) => (
-              <span class={`animated-letter letter-${index + 1}`}>{char}</span>
-            ))}
-          </div>
-        )}
-
-        <div class="flex flex-col h-full box-border">
-          <TopBar
-            state={paneState()}
-            vimstate={vimState()}
-            setState={setPaneState}
-            setVimState={setVimState}
-            buildFunction={build}
-          />
-          <CommandMenu buildFunction={build} />
-          <div
-            classList={{
-              "max-w-160": paneState() !== PaneState.EDITOR_AND_PREVIEW,
-              "max-w-full": paneState() === PaneState.EDITOR_AND_PREVIEW,
-            }}
-            class="flex flex-grow flex-row overflow-y-auto box-border border-2px border-black border-solid mx-auto"
-          >
-            {hasEditor(paneState()) && (
-              <Pane fullWidth={paneState() === PaneState.EDITOR_ONLY}>
-                {editor()}
-              </Pane>
-            )}
-            {paneState() === PaneState.EDITOR_AND_PREVIEW && (
-              <div class="w-2px h-full bg-black mx-1"></div>
-            )}
-            {hasPreview(paneState()) && (
-              <Pane fullWidth={paneState() === PaneState.PREVIEW_ONLY}>
-                <Show when={previewProps()}>
-                  {(props) => <Preview {...props()} />}
-                </Show>
-              </Pane>
-            )}
-          </div>
+    <div class="lg-container font-sans mx-auto h-screen max-h-screen box-border max-w-296">
+      <div class="flex flex-col h-full w-full box-border">
+        <TopBar
+          state={paneState()}
+          vimstate={vimState()}
+          setState={setPaneState}
+          setVimState={setVimState}
+          buildFunction={build}
+        />
+        <CommandMenu buildFunction={build} />
+        <div
+          classList={{
+            "max-w-160": paneState() !== PaneState.EDITOR_AND_PREVIEW,
+            "max-w-full": paneState() === PaneState.EDITOR_AND_PREVIEW,
+          }}
+          class="flex flex-grow flex-row overflow-y-auto box-border border-2px border-black border-solid mx-auto w-full"
+        >
+          {hasEditor(paneState()) && (
+            <Pane fullWidth={paneState() === PaneState.EDITOR_ONLY}>
+              {editor()}
+            </Pane>
+          )}
+          {paneState() === PaneState.EDITOR_AND_PREVIEW && (
+            <div class="w-2px h-full bg-black mx-1"></div>
+          )}
+          {hasPreview(paneState()) && (
+            <Pane fullWidth={paneState() === PaneState.PREVIEW_ONLY}>
+              <Preview tree={tree()} />
+            </Pane>
+          )}
         </div>
       </div>
-      <Quiver />
-    </>
+    </div>
   )
 }
 

@@ -22,6 +22,7 @@
     "@hocuspocus/server": "^2.12.2",
     "@replit/codemirror-vim": "^6.2.1",
     "@solidjs/router": "^0.13.3",
+    "@types/ws": "^8.5.10",
     "@unocss/reset": "^0.59.4",
     "cmdk-solid": "^1.0.1",
     "codemirror": "^6.0.1",
@@ -29,7 +30,9 @@
     "katex": "^0.16.10",
     "ky": "^1.2.4",
     "quiver": "git+https://github.com/olynch/quiver.git#master",
+    "redis": "^4.6.14",
     "solid-js": "^1.8.15",
+    "ws": "^8.17.0",
     "y-codemirror.next": "^0.3.3",
     "yarn": "^1.22.22",
     "yjs": "^13.6.15"
