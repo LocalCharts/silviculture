@@ -13,7 +13,7 @@ async function buildForest(
 ): Promise<void> {
   const builder = spawn(
     'forester',
-    ['build', '--dev', '--root', 'lc-0001', 'trees/'],
+    ['build', '--root', 'lc-0001', 'trees/'],
     { cwd: forestDir }
   ) //shouldn't just inherit to stdio, need to pipe to client
   builder.stdout.on('data', data => {

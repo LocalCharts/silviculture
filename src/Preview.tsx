@@ -70,7 +70,7 @@ export function Preview (props: PreviewProps): JSXElement {
           'application/xml'
         )
         const doc = p.transformToDocument(transformed)
-        const content = doc.getElementsByClassName('tree-content')[0] as HTMLElement
+        const content = doc.getElementsByClassName('block')[0] as HTMLElement
         autoRenderMath(content)
         return content
       } else {
