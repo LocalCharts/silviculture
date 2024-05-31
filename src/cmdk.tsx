@@ -110,7 +110,7 @@ function CommandInner(props: CommandInnerProps) {
     ref.focus()
   })
   return <Command
-    class="fixed top-5 left-1/2 -translate-x-1/2 bg-white p-6 border border-gray-200 rounded text-lg w-128 z-1000 h-128"
+    class="fixed top-5 left-1/2 -translate-x-1/2 bg-white p-6 border border-gray-200 rounded text-lg w-128 z-1000 h-128 flex flex-col"
     label="Global Command Menu"
     filter={(value, search) => {
       if (value.includes(search)) return 1
@@ -119,8 +119,7 @@ function CommandInner(props: CommandInnerProps) {
     <Command.Input
       class="w-full border border-gray-200 rounded p-2 focus:outline-none focus:border-blue-500 my-2"
       ref={el => ref = el} placeholder="search for a tree" />
-    <div class="overflow-y-auto h-full">
-    <Command.List>
+    <Command.List class="flex-grow overflow-y-auto">
       <Command.Empty>No results found.</Command.Empty>
       <Show when={props.trees()}>
         {trees =>
@@ -132,7 +131,6 @@ function CommandInner(props: CommandInnerProps) {
         }
       </Show>
     </Command.List>
-    </div>
   </Command>
 }
 
