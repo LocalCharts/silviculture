@@ -3,24 +3,38 @@ import { createSignal, onMount, onCleanup, Show, createResource, Resource, For }
 import { useNavigate } from '@solidjs/router'
 import ky from 'ky';
 export { CommandMenu };
-//const navigate = useNavigate()
-type ItemProps = {
+
+type TreeItemProps = {
+  tree: Tree,
   name: string
-  onSelect: (value: any) => void
+  goto: (tree: string) => void
 }
 
-function Item(props: ItemProps) {
+function TreeItem(props: TreeItemProps) {
+  const tree = props.tree
+  let title: string
+
+  if (tree.taxon == null && tree.title == null) {
+    title = 'Untitled'
+  } else if (tree.taxon == null) {
+    title = tree.title!
+  } else if (tree.title == null) {
+    title = tree.taxon
+  } else {
+    title = `${tree.taxon}. ${tree.title}`
+  }
+  
   return (
     <Command.Item
-      onSelect={props.onSelect}
-      class="p-2 bg-gray-50 my-2 cursor-pointer">
-      {props.name}
+      onSelect={_ => props.goto(props.name)}
+      class="p-4 bg-gray-50 my-2 cursor-pointer text-sm">
+      {`${title} [${props.name}]`}
     </Command.Item>
   )
 }
 
 type Tree = {
-  title: string,
+  title: string | null,
   route: string,
   taxon: string | null,
   tags: string[],
@@ -30,11 +44,9 @@ type Trees = Record<string, Tree>
 
 type CommandMenuProps = {
   buildFunction: () => void,
-  trees: Resource<Trees>,
-  done: () => void
 }
 
-const CommandMenu = (props: CommandMenuProps) => {
+const CommandMenu = (_props: CommandMenuProps) => {
   const [open, setOpen] = createSignal(false)
 
   const [trees, {}] = createResource<Trees>(async () => {
@@ -72,7 +84,6 @@ const CommandMenu = (props: CommandMenuProps) => {
     <Show when={open()}>
       <div ref={el => menuRef = el}>
         <CommandInner
-          buildFunction={props.buildFunction}
           trees={trees}
           done={() => setOpen(false)} />
       </div>
@@ -80,34 +91,47 @@ const CommandMenu = (props: CommandMenuProps) => {
   );
 }
 
+type CommandInnerProps = {
+  done: () => void,
+  trees: Resource<Trees>
+}
 
-function CommandInner(props: CommandMenuProps) {
+function CommandInner(props: CommandInnerProps) {
+  const navigate = useNavigate()
+
+  function goto(name: string) {
+    navigate('/' + name)
+    props.done()
+  }
+
   let ref: HTMLElement
   onMount(() => {
     ref.focus()
   })
-  const navigate = useNavigate();
   return <Command
-    class="fixed top-5 left-1/2 -translate-x-1/2 bg-white p-6 border border-gray-200 rounded text-lg w-128 z-1000"
-    label="Global Command Menu">
+    class="fixed top-5 left-1/2 -translate-x-1/2 bg-white p-6 border border-gray-200 rounded text-lg w-128 z-1000 h-128"
+    label="Global Command Menu"
+    filter={(value, search) => {
+      if (value.includes(search)) return 1
+      return 0
+    }}>
     <Command.Input
       class="w-full border border-gray-200 rounded p-2 focus:outline-none focus:border-blue-500 my-2"
-      ref={el => ref = el} placeholder="type somethin'" />
+      ref={el => ref = el} placeholder="search for a tree" />
+    <div class="overflow-y-auto h-full">
     <Command.List>
       <Command.Empty>No results found.</Command.Empty>
       <Show when={props.trees()}>
         {trees =>
-          <For each={Object.entries(trees())}>
-            {nt => {
-              const [name, tree] = nt;
-              const title = (tree.title == null) ? name : tree.title
-              return <Item name={title} onSelect={_ => { navigate("/" + name); props.done(); } } />
-            }}
+          <For each={Object.entries(trees()).sort(
+            (a, b) => a[0].localeCompare(b[0])
+          )}>
+            {nt => <TreeItem name={nt[0]} tree={nt[1]} goto={goto} />}
           </For>
         }
       </Show>
-      <Item name="build" onSelect={_ => { props.buildFunction(); props.done() }} />
     </Command.List>
+    </div>
   </Command>
 }
 
