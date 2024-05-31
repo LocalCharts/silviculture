@@ -71,7 +71,7 @@ export function Preview (props: PreviewProps): JSXElement {
           'application/xml'
         )
         const doc = p.transformToDocument(transformed)
-        const content = doc.getElementsByClassName('block')[0] as HTMLElement
+        const content = doc.getElementById('grid-wrapper') as HTMLElement
         autoRenderMath(content)
         return content
       } else {
@@ -107,9 +107,7 @@ export function Preview (props: PreviewProps): JSXElement {
 
   return (
     <div class="m-2 preview">
-      <div class="block">
-        {content()}
-      </div>
+      {content()}
     </div>
   )
 }
