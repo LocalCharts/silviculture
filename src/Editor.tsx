@@ -54,7 +54,15 @@ export function Editor (props: EditorProps): JSXElement {
       doc: ytext.toString(),
       extensions: [
         keymap.of([
-          { key: "Mod-Enter", run: _ => {props.buildFn(); return true} }
+          {
+            key: "Mod-Enter",
+            run: _ => {props.buildFn(); return true}
+          },
+          {
+            key: "Ctrl-s",
+            run: _ => {props.buildFn(); return true},
+            preventDefault: true
+          }
         ]),    
         vimConf.of(vim()),
         basicSetup,
