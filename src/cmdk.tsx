@@ -3,6 +3,7 @@ import { createSignal, onMount, onCleanup, Show, createResource, Resource, For }
 import { useNavigate } from '@solidjs/router'
 import ky from 'ky';
 export { CommandMenu };
+import './cmdk.css'
 
 type TreeItemProps = {
   tree: Tree,
@@ -27,7 +28,7 @@ function TreeItem(props: TreeItemProps) {
   return (
     <Command.Item
       onSelect={_ => props.goto(props.name)}
-      class="p-4 bg-gray-50 my-2 cursor-pointer text-sm">
+      class="p-4 bg-gray-50 my-2 cursor-pointer text-sm border-l-solid border-l-2 border-l-transparent rounded-sm">
       {`${title} [${props.name}]`}
     </Command.Item>
   )

@@ -2,6 +2,7 @@ import autoRenderMath from 'katex/contrib/auto-render'
 import { JSXElement, createMemo, createSignal, createEffect, createResource } from 'solid-js'
 import { BuildNotification, BuildResult } from '../common/api'
 import './style.css'
+import './custom.css'
 import ky from 'ky'
 
 export interface PreviewProps {
