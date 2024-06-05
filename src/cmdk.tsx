@@ -28,7 +28,7 @@ function TreeItem(props: TreeItemProps) {
   return (
     <Command.Item
       onSelect={_ => props.goto(props.name)}
-      class="p-4 bg-gray-50 my-2 cursor-pointer text-sm border-l-solid border-l-2 border-l-transparent rounded-sm">
+      class="p-4 bg-gray-50 my-2 cursor-pointer text-sm border-none border-l-solid border-l-2 border-l-transparent rounded-sm">
       {`${title} [${props.name}]`}
     </Command.Item>
   )

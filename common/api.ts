@@ -29,3 +29,13 @@ type Finished = {
 }
 
 export type BuildNotification = Building | Finished
+
+export type NewTreeRequest = {
+  namespace: string,
+  taxon?: string,
+  title?: string
+}
+
+export type NewTreeResponse = {
+  name: string
+}

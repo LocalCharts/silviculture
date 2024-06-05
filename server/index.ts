@@ -8,8 +8,10 @@ import { SQLiteWithFS } from './persistence.js'
 import { startBuilder } from './builder.js'
 import { RedisClientType, createClient } from 'redis'
 import sqlite3 from 'sqlite3'
-import { readFile } from 'fs/promises'
+import { appendFile, readFile, writeFile } from 'fs/promises'
 import * as fastifyStatic from '@fastify/static'
+import { NewTreeRequest } from '../common/api.js'
+import { spawn } from 'child_process'
 
 /**
  * Build workflow:
@@ -96,10 +98,15 @@ app.get('/preview/:tree', { websocket: true }, async (socket, req) => {
     if (last_build_result != null) {
       const res = JSON.parse(last_build_result)
       if (res.success) {
-        const content = await readFile(
-          path.join(builtRoot, tree + '.xml'),
-          { encoding: 'utf8' }
-        )
+        let content: string
+        try {
+          content = await readFile(
+            path.join(builtRoot, tree + '.xml'),
+            { encoding: 'utf8' }
+          )
+        } catch (_e) {
+          content = ''
+        }
         socket.send(JSON.stringify({
           state: 'finished',
           result: { success: true, content }
@@ -130,6 +137,44 @@ app.get('/preview/:tree', { websocket: true }, async (socket, req) => {
 
 app.post('/api/build', async (_req) => {
   fastifyClient.publish('build_requests', '')
+})
+
+app.post('/api/newtree', async (req) => {
+  let body = req.body as NewTreeRequest
+  let namespace = body.namespace
+  const foresterProcess = spawn(
+    'forester',
+    ['new', `--prefix=${namespace}`, '--dest=trees', '--dir=trees'],
+    { cwd: forestDir }
+  )
+  const output: string[] = []
+  foresterProcess.stdout.setEncoding('utf8')
+  foresterProcess.stdout.on('data', data => {
+    output.push(data)
+  })
+  await new Promise((resolve, reject) => {
+    foresterProcess.on('close', errno => {
+      if (errno !== 0) {
+        reject(new Error(`new tree failed with code ${errno}`))
+      } else {
+        resolve({})
+      }
+    })
+    foresterProcess.on('error', (err) => {
+      reject(err)
+    })
+  })
+  console.log(output)
+  const name = (output[0].match(/trees\/(.+)\.tree/) as string[])[1]
+  const lines: string[] = []
+  if (body.title !== undefined) {
+    lines.push(`\\title{${body.title}}`)
+  }
+  if (body.taxon !== undefined) {
+    lines.push(`\\taxon{${body.taxon}}`)
+  }
+  await appendFile(path.join(contentRoot, name + '.tree'), lines.join('\n'))
+  return { name }
 })
 
 app.listen({ port: 1234 })

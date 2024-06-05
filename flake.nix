@@ -65,12 +65,13 @@
     });
     devShells = eachSystem (pkgs: {
       default = pkgs.mkShell {
-        buildInputs = [
-          pkgs.nodejs
-          pkgs.node2nix
-          pkgs.nodePackages.pnpm
-          pkgs.nodePackages.typescript
-          pkgs.nodePackages.typescript-language-server
+        buildInputs = with pkgs; [
+          nodejs
+          node2nix
+          nodePackages.yarn
+          nodePackages.typescript
+          nodePackages.typescript-language-server
+          zola
         ];
       };
     });

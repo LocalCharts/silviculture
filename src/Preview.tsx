@@ -43,12 +43,10 @@ export function Preview (props: PreviewProps): JSXElement {
     }
     const socket = new WebSocket(`ws://localhost:1234/preview/${props.tree}`)
     socket.onmessage = (ev: MessageEvent<any>) => {
-      console.log(ev)
       const message = JSON.parse(ev.data) as BuildNotification
       if (message.state == 'building') {
         setState({ state: 'building' })
       } else if (message.state == 'finished') {
-        console.log(message.result)
         setState({
           state: 'loaded',
           result: message.result

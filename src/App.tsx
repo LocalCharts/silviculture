@@ -24,12 +24,15 @@ function App (): JSXElement {
     return params.tree.replace(/\.xml$/, '')
   })
   // Connect it to the backend
-  const provider = createMemo(() => {
+  const provider = createMemo((oldProvider: HocuspocusProvider | null) => {
+    if (oldProvider != null) {
+      oldProvider.destroy()
+    }
     return new HocuspocusProvider({
       url: 'ws://localhost:1234/collaboration',
       name: tree() + '.tree'
     })
-  })
+  }, null)
 
   // Define `tasks` as an Array
 

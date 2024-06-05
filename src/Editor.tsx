@@ -7,7 +7,10 @@ import { EditorState, Compartment } from '@codemirror/state'
 import { keymap } from '@codemirror/view'
 import { HocuspocusProvider } from '@hocuspocus/provider'
 import { vim, Vim } from '@replit/codemirror-vim'
-import { JSXElement, createEffect } from 'solid-js'
+import { JSXElement, Show, createEffect, createSignal, onCleanup, onMount } from 'solid-js'
+import { NewTreeRequest, NewTreeResponse } from '../common/api'
+import ky from 'ky'
+import { Portal } from 'solid-js/web'
 
 export const usercolors = [
   { color: '#30bced', light: '#30bced33' },
@@ -31,9 +34,105 @@ interface EditorProps {
   tree: string
 }
 
+async function newTransclude(req: NewTreeRequest, ev: EditorView) {
+  const response = await (
+    await ky.post('/api/newtree', { json: req })
+  ).json() as NewTreeResponse
+  ev.dispatch({
+    changes: {
+      from: ev.state.selection.main.head,
+      insert: `\\transclude{${response.name}}` }
+    }
+  )
+}
+
+type TextInputProps = {
+  name: string,
+  focus: boolean,
+}
+
+function capitalize(s: string) {
+  return s.charAt(0).toUpperCase() + s.slice(1)
+}
+
+function TextInput (props: TextInputProps) {
+  let ref: HTMLElement
+
+
+  if (props.focus) {
+    onMount(() => ref.focus())
+  }
+
+  return (
+    <>
+      <label class="w-1/3 m-2 text-right" for={props.name}>{capitalize(props.name)}: </label>
+      <input ref={elt => ref = elt} class="w-1/2 my-2" name={props.name} type="text"></input>
+    </>
+  )
+}
+
+type NewTreeModalProps = {
+  submit: (req: NewTreeRequest) => void,
+  defaultNamespace: string,
+  cancel: () => void
+}
+
+function undefIfEmpty(s: string | undefined) {
+  return s == '' ? undefined : s
+}
+
+
+function NewTreeModal (props: NewTreeModalProps): JSXElement {
+  function onSubmit(evt: SubmitEvent) {
+    evt.preventDefault()
+    const form = evt.target as HTMLFormElement
+    const formData = new FormData(form)
+    props.submit({
+      namespace: formData.get('namespace')?.toString() as string,
+      taxon: undefIfEmpty(formData.get('taxon')?.toString()),
+      title: undefIfEmpty(formData.get('title')?.toString()),
+    })
+  }
+
+  onMount(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') props.cancel()
+    }
+
+    document.addEventListener('keydown', down)
+    onCleanup(() => document.removeEventListener('keydown', down))
+  })
+
+  let ref: HTMLElement
+
+  const clickOutside = (e: MouseEvent) => {
+    if (ref && !ref.contains(e.target as any)) {
+      props.cancel()
+    }
+  }
+
+  document.addEventListener('click', clickOutside)
+
+  onCleanup(() => {
+    document.removeEventListener('mousedown', clickOutside);
+  });
+  return <Portal>
+    <div ref={elt => ref = elt} class="fixed top-5 left-1/2 -translate-x-1/2 bg-white p-4 border border-black border-solid border-2 rounded flex flex-col">
+      <div class="w-full font-bold text-lg text-center m-b-2">New Tree</div>
+      <form class="flex flex-wrap" onSubmit={onSubmit}>
+        <TextInput name="namespace" focus={true} />
+        <TextInput name="taxon" focus={false} />
+        <TextInput name="title" focus={false} />
+        <input type="submit" hidden />
+      </form>
+      <div class="text-slate-400">Hit enter to create new tree</div>
+    </div>
+  </Portal>
+}
 
 export function Editor (props: EditorProps): JSXElement {
-  let ref: Element
+  let ref: HTMLElement
+  let view: EditorView
 
   props.provider.awareness?.setLocalStateField('user', {
     name: 'Anonymous ' + Math.floor(Math.random() * 100).toString(),
@@ -41,7 +140,9 @@ export function Editor (props: EditorProps): JSXElement {
     colorLight: userColor.light
   })
 
-  function onload (elt: Element): void {
+  const [newTreeShown, setNewTreeShown] = createSignal(false)
+
+  function onload (elt: HTMLElement): void {
     ref = elt
 
     const ytext = props.ytext
@@ -50,6 +151,7 @@ export function Editor (props: EditorProps): JSXElement {
     const undoManager = new Y.UndoManager(ytext)
 
     Vim.defineEx('write', 'w', props.buildFn)
+
     let state = EditorState.create({
       doc: ytext.toString(),
       extensions: [
@@ -62,6 +164,14 @@ export function Editor (props: EditorProps): JSXElement {
             key: "Ctrl-s",
             run: _ => {props.buildFn(); return true},
             preventDefault: true
+          },
+          {
+            key: "Ctrl-i",
+            run: (_ev) => {
+              setNewTreeShown(true)
+              return true
+            },
+            preventDefault: true
           }
         ]),    
         vimConf.of(vim()),
@@ -71,7 +181,7 @@ export function Editor (props: EditorProps): JSXElement {
       ]
     })
 
-    const view = new EditorView({
+    view = new EditorView({
       state,
       parent: ref
     })
@@ -89,9 +199,25 @@ export function Editor (props: EditorProps): JSXElement {
     })
   }
 
+
   return (
-    <div
-      ref={onload}
-    />
+    <>
+      <div
+        ref={onload}
+      />
+      <Show when={newTreeShown()}>
+        <NewTreeModal
+          submit={(req) => {
+            console.log(req)
+            newTransclude(req, view)
+            setNewTreeShown(false)
+          }}
+          defaultNamespace='ocl'
+          cancel={() => {
+            setNewTreeShown(false)
+            view.focus()
+          }} />
+      </Show>
+    </>
   )
 }

@@ -44,10 +44,15 @@ export class SQLiteWithFS implements Extension {
           reject(error)
         } else if (typeof row == 'undefined') {
           try {
-            const contents = await readFile(
-              this.getPath(data.documentName),
-              { encoding: 'utf8' }
-            )
+            let contents: string
+            try {
+              contents = await readFile(
+                this.getPath(data.documentName),
+                { encoding: 'utf8' }
+              )
+            } catch (_e) {
+              contents = ''
+            }
             const doc = data.document
             const ycontents = doc.getText('content')
             ycontents.insert(0, contents)

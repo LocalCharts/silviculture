@@ -1,5 +1,7 @@
 import { JSX, JSXElement, splitProps } from 'solid-js'
 import { PaneState } from './Pane'
+import ky from 'ky'
+import { NewTreeResponse } from '../common/api'
 export { TopBar }
 
 
@@ -15,6 +17,7 @@ function TopBarChoice (props: TopBarChoiceProps): JSXElement {
       class='py-1 px-3 border-1 border-solid border-black' //should use Button.tsx?
       classList={{
         'bg-slate-200': props.enabled,
+        'bg-white': !props.enabled,
         'hover:bg-slate-300': props.enabled,
         'hover:bg-slate-100': !props.enabled
       }}
@@ -31,6 +34,12 @@ interface TopBarProps {
   setState: (s: PaneState) => void
   setVimState: (s: boolean) => void
   buildFunction : () => void
+}
+
+async function makeNew() {
+  await (
+    await ky.post('/api/newtree', { json: { namespace: 'ocl' } })
+  ).json() as NewTreeResponse
 }
 
 function TopBar (props: TopBarProps): JSXElement {
@@ -67,6 +76,12 @@ function TopBar (props: TopBarProps): JSXElement {
         onClick={_ => props.buildFunction()}
       >
         <div >build</div>
+      </TopBarChoice>
+      <TopBarChoice
+        enabled={false}
+        onClick={_ => makeNew()}
+      >
+        <div>new</div>
       </TopBarChoice>
     </div>
   )
