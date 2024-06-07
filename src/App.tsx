@@ -29,7 +29,7 @@ function App (): JSXElement {
       oldProvider.destroy()
     }
     return new HocuspocusProvider({
-      url: 'ws://localhost:1234/collaboration',
+      url: '/collaboration',
       name: tree() + '.tree'
     })
   }, null)

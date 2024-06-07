@@ -41,7 +41,7 @@ export function Preview (props: PreviewProps): JSXElement {
     if (oldSocket) {
       oldSocket.close()
     }
-    const socket = new WebSocket(`ws://localhost:1234/preview/${props.tree}`)
+    const socket = new WebSocket(`/preview/${props.tree}`)
     socket.onmessage = (ev: MessageEvent<any>) => {
       const message = JSON.parse(ev.data) as BuildNotification
       if (message.state == 'building') {
