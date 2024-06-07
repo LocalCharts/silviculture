@@ -31,15 +31,11 @@ function TopBarChoice (props: TopBarChoiceProps): JSXElement {
 interface TopBarProps {
   state: PaneState
   vimstate: boolean
+  helpState: boolean
+  setHelpState: (b: boolean) => void
   setState: (s: PaneState) => void
   setVimState: (s: boolean) => void
   buildFunction : () => void
-}
-
-async function makeNew() {
-  await (
-    await ky.post('/api/newtree', { json: { namespace: 'ocl' } })
-  ).json() as NewTreeResponse
 }
 
 function TopBar (props: TopBarProps): JSXElement {
@@ -76,6 +72,12 @@ function TopBar (props: TopBarProps): JSXElement {
         onClick={_ => props.buildFunction()}
       >
         <div >build</div>
+      </TopBarChoice>
+      <TopBarChoice
+        enabled={props.helpState}
+        onClick={_ => props.setHelpState(!props.helpState)}
+      >
+        <div>help</div>
       </TopBarChoice>
     </div>
   )

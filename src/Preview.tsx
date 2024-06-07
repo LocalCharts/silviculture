@@ -7,6 +7,7 @@ import ky from 'ky'
 
 export interface PreviewProps {
   tree: string,
+  showHelp: boolean
 }
 
 type PreviewLoading = {
@@ -20,6 +21,58 @@ type PreviewBuilding = {
 type PreviewLoaded = {
   state: 'loaded',
   result: BuildResult
+}
+
+function Help(): JSXElement {
+  return (<div class="preview">
+    <h1 class="py-2">Important keybindings</h1>
+    <table class="py-2">
+      <thead><tr><th>Keyboard shortcut</th><th>Effect</th></tr></thead>
+      <tbody>
+      <tr><td>Ctrl-enter, Ctrl-s</td><td>Build</td></tr>
+      <tr><td>Ctrl-k, Ctrl-s</td><td>Quick jump between trees</td></tr>
+      <tr><td>Ctrl-i</td><td>Insert transclude to new tree</td></tr>
+      </tbody>
+    </table>
+    <h1 class="py-2">Quick Forester Reference</h1>
+    <p>Forester uses LaTeX syntax (i.e. <code>\tag[optional argument]&lbrace;main argument&rbrace;</code>), but HTML names for common tags.</p>
+    <p>For instance, instead of <code>\begin&lbrace;itemize&rbrace; \item A \item B \end&lbrace;itemize&rbrace;</code>, one would use <code>\ul&lbrace;\li&lbrace;A&rbrace;\li&lbrace;B&rbrace;&rbrace;</code>, mimicking the equivalent HTML <code>&lt;ul&gt;&lt;li&gt;A&lt;/li&gt;&lt;li&gt;B&lt;/li&gt;&lt;/ul&gt;</code>.</p>
+    <p>Instead of dollar signs, forester uses <code>#&lbrace;math&rbrace;</code> for inline math, and <code>##&lbrace;math&rbrace;</code> for display math.</p>
+    <p>The best way to get a feel for Forester is by browsing through some documents</p>
+    <p>The second best way is to read some tutorials:</p>
+      <ul>
+        <li><span class="link external"><a href="https://forest.localcharts.org/lc-0002.xml">Forester for the Woodland Skeptic</a></span></li>
+        <li><span class="link external"><a href="http://www.jonmsterling.com/jms-0052.xml">Build your own Stacks Project in 10 minutes</a></span></li>
+      </ul>
+    <h1 class="py-2">About Silviculture</h1>
+    <table class="py-2">
+      <tbody>
+        <tr>
+          <td>Source:</td>
+          <td>
+            <span class="link external">
+            <a href="https://github.com/LocalCharts/silviculture">
+              github.com/LocalCharts/silviculture</a>
+            </span>
+          </td>
+        </tr>
+        <tr>
+          <td>Homepage:</td>
+          <td>
+            <span class="link external">
+            <a href="https://forest.localcharts.org/silviculture-0001.xml">
+              forest.localcharts.org/silviculture-0001.xml
+            </a>
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      Thanks to the <a href="https://topos.institute">Topos Institute</a> and <a href="https://www.goodforever.org">GoodForever</a> for supporting development of Silviculture.
+    </p>
+  </div>
+  )
 }
 
 type PreviewState = PreviewLoading | PreviewLoaded | PreviewBuilding
@@ -58,6 +111,9 @@ export function Preview (props: PreviewProps): JSXElement {
 
   const content = createMemo(() => {
     const state = getState()
+    if (props.showHelp) {
+      return Help()
+    }
     if (state.state == 'loaded') {
       if (state.result.success) {
         const p = processor()

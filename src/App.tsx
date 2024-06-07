@@ -42,6 +42,7 @@ function App (): JSXElement {
 
   const [paneState, setPaneState] = createSignal(PaneState.EDITOR_AND_PREVIEW);
   const [vimState, setVimState] = createSignal(false);
+  const [helpState, setHelpState] = createSignal(false);
 
   function build() {
     ky.post("/api/build", { json: { } })
@@ -70,6 +71,8 @@ function App (): JSXElement {
         <TopBar
           state={paneState()}
           vimstate={vimState()}
+          helpState={helpState()}
+          setHelpState={setHelpState}
           setState={setPaneState}
           setVimState={setVimState}
           buildFunction={build}
@@ -92,7 +95,7 @@ function App (): JSXElement {
           )}
           {hasPreview(paneState()) && (
             <Pane fullWidth={paneState() === PaneState.PREVIEW_ONLY}>
-              <Preview tree={tree()} />
+              <Preview tree={tree()} showHelp={helpState()} />
             </Pane>
           )}
         </div>
