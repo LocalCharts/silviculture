@@ -14,7 +14,7 @@
       let
         offlineCache = pkgs.fetchYarnDeps {
           yarnLock = ./yarn.lock;
-          hash = "sha256-CaYVmXGlIqghlfCgn9CYyoaokg5lcV18N6AFSYezsSk=";
+          hash = "sha256-DKrTfmQcOIlINvb7bCDCJbJAGr41Otww7YkyG1R8ClM=";
         };
         headers = pkgs.fetchurl {
           url = "https://nodejs.org/download/release/v20.11.1/node-v20.11.1-headers.tar.gz";
@@ -23,7 +23,7 @@
       in {
         default = pkgs.mkYarnPackage {
           pname = "silviculture";
-          version = "0.0.1";
+          version = "0.1.0";
           src = ./.;
           packageJSON = ./package.json;
           inherit offlineCache;
