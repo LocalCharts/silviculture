@@ -75,7 +75,12 @@ function TopBar (props: TopBarProps): JSXElement {
       </TopBarChoice>
       <TopBarChoice
         enabled={props.helpState}
-        onClick={_ => props.setHelpState(!props.helpState)}
+        onClick={_ => {
+          props.setHelpState(!props.helpState)
+          if (props.state === PaneState.EDITOR_ONLY) {
+            props.setState(PaneState.EDITOR_AND_PREVIEW)
+          }
+        }}
       >
         <div>help</div>
       </TopBarChoice>
