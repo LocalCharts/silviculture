@@ -7,10 +7,9 @@ import { EditorState, Compartment } from '@codemirror/state'
 import { keymap } from '@codemirror/view'
 import { HocuspocusProvider } from '@hocuspocus/provider'
 import { vim, Vim } from '@replit/codemirror-vim'
-import { JSXElement, Show, createEffect, createSignal, onCleanup, onMount } from 'solid-js'
+import { JSXElement, createEffect, createSignal, onCleanup, onMount } from 'solid-js'
 import { NewTreeRequest, NewTreeResponse } from '../common/api'
 import ky from 'ky'
-import { Portal } from 'solid-js/web'
 
 export const usercolors = [
   { color: '#30bced', light: '#30bced33' },
@@ -35,20 +34,26 @@ interface EditorProps {
 }
 
 async function newTransclude(req: NewTreeRequest, ev: EditorView) {
-  const response = await (
+  const response = (await (
     await ky.post('/api/newtree', { json: req })
-  ).json() as NewTreeResponse
+  ).json()) as NewTreeResponse
+  const selection = ev.state.selection.main
+  const toInsert = `\\transclude{${response.name}}`
   ev.dispatch({
     changes: {
-      from: ev.state.selection.main.head,
-      insert: `\\transclude{${response.name}}` }
+      from: selection.head,
+      insert: toInsert
+    },
+    selection: {
+      anchor: selection.head + toInsert.length
     }
-  )
+  })
 }
 
 type TextInputProps = {
   name: string,
   focus: boolean,
+  ref?: (elt: HTMLElement) => void
 }
 
 function capitalize(s: string) {
@@ -66,13 +71,14 @@ function TextInput (props: TextInputProps) {
   return (
     <>
       <label class="w-1/3 m-2 text-right" for={props.name}>{capitalize(props.name)}: </label>
-      <input ref={elt => ref = elt} class="w-1/2 my-2" name={props.name} type="text"></input>
+      <input ref={elt => { ref = elt; if (props.ref) { props.ref(elt) } }} class="w-1/2 my-2" name={props.name} type="text"></input>
     </>
   )
 }
 
 type NewTreeModalProps = {
-  submit: (req: NewTreeRequest) => void,
+  visible: boolean,
+  submit: (req: NewTreeRequest) => Promise<void>,
   defaultNamespace: string,
   cancel: () => void
 }
@@ -83,15 +89,17 @@ function undefIfEmpty(s: string | undefined) {
 
 
 function NewTreeModal (props: NewTreeModalProps): JSXElement {
-  function onSubmit(evt: SubmitEvent) {
+  async function onSubmit(evt: SubmitEvent) {
+    console.log('submitted')
     evt.preventDefault()
     const form = evt.target as HTMLFormElement
     const formData = new FormData(form)
-    props.submit({
+    await props.submit({
       namespace: formData.get('namespace')?.toString() as string,
       taxon: undefIfEmpty(formData.get('taxon')?.toString()),
       title: undefIfEmpty(formData.get('title')?.toString()),
     })
+    form.reset()
   }
 
   onMount(() => {
@@ -103,7 +111,17 @@ function NewTreeModal (props: NewTreeModalProps): JSXElement {
     onCleanup(() => document.removeEventListener('keydown', down))
   })
 
+
   let ref: HTMLElement
+  let namespaceInput: HTMLElement | undefined
+
+  createEffect(() => {
+    if (props.visible) {
+      if (namespaceInput) {
+        namespaceInput.focus()
+      }
+    }
+  })
 
   const clickOutside = (e: MouseEvent) => {
     if (ref && !ref.contains(e.target as any)) {
@@ -116,18 +134,22 @@ function NewTreeModal (props: NewTreeModalProps): JSXElement {
   onCleanup(() => {
     document.removeEventListener('mousedown', clickOutside);
   });
-  return <Portal>
-    <div ref={elt => ref = elt} class="fixed top-5 left-1/2 -translate-x-1/2 bg-white p-4 border border-black border-solid border-2 rounded flex flex-col">
+  return (
+    <div
+      ref={elt => ref = elt}
+      class="fixed top-5 left-1/2 -translate-x-1/2 bg-white p-4 border border-black border-solid border-2 rounded flex flex-col"
+      classList={{invisible: !props.visible}}
+    >
       <div class="w-full font-bold text-lg text-center m-b-2">New Tree</div>
       <form class="flex flex-wrap" onSubmit={onSubmit}>
-        <TextInput name="namespace" focus={true} />
+        <TextInput ref={(elt: HTMLElement) => namespaceInput = elt} name="namespace" focus={true} />
         <TextInput name="taxon" focus={false} />
         <TextInput name="title" focus={false} />
         <input type="submit" hidden />
       </form>
       <div class="text-slate-400">Hit enter to create new tree</div>
     </div>
-  </Portal>
+  )
 }
 
 export function Editor (props: EditorProps): JSXElement {
@@ -205,19 +227,18 @@ export function Editor (props: EditorProps): JSXElement {
       <div
         ref={onload}
       />
-      <Show when={newTreeShown()}>
-        <NewTreeModal
-          submit={(req) => {
-            console.log(req)
-            newTransclude(req, view)
-            setNewTreeShown(false)
-          }}
-          defaultNamespace='ocl'
-          cancel={() => {
-            setNewTreeShown(false)
-            view.focus()
-          }} />
-      </Show>
+      <NewTreeModal
+        visible={newTreeShown()}
+        submit={async (req) => {
+          await newTransclude(req, view)
+          setNewTreeShown(false)
+          view.focus()
+        }}
+        defaultNamespace=''
+        cancel={() => {
+          setNewTreeShown(false)
+          view.focus()
+        }} />
     </>
   )
 }

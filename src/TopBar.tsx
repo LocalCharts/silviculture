@@ -77,12 +77,6 @@ function TopBar (props: TopBarProps): JSXElement {
       >
         <div >build</div>
       </TopBarChoice>
-      <TopBarChoice
-        enabled={false}
-        onClick={_ => makeNew()}
-      >
-        <div>new</div>
-      </TopBarChoice>
     </div>
   )
 }
