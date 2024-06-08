@@ -1,6 +1,1 @@
-## TODO
-
-1. Write proper README
-2. Make "new" button
-3. Make cheatsheet popup
-4. Deploy with redis
+See [the webpage](https://forest.localcharts.org/silviculture-0001.xml).
