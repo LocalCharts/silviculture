@@ -113,7 +113,7 @@ function CommandInner(props: CommandInnerProps) {
     class="fixed top-5 left-1/2 -translate-x-1/2 bg-white p-6 border border-gray-200 rounded text-lg w-128 z-1000 h-128 flex flex-col"
     label="Global Command Menu"
     filter={(value, search) => {
-      if (value.includes(search)) return 1
+      if (value.toLowerCase().includes(search.toLowerCase())) return 1
       return 0
     }}>
     <Command.Input
