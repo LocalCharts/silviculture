@@ -137,7 +137,7 @@ function NewTreeModal (props: NewTreeModalProps): JSXElement {
   return (
     <div
       ref={elt => ref = elt}
-      class="fixed top-5 left-1/2 -translate-x-1/2 bg-white p-4 border border-black border-solid border-2 rounded flex flex-col"
+      class="fixed top-5 left-1/2 -translate-x-1/2 bg-white p-4 border border-black border-solid border-2 rounded flex flex-col z-2000"
       classList={{invisible: !props.visible}}
     >
       <div class="w-full font-bold text-lg text-center m-b-2">New Tree</div>
